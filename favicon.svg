@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="25" fill="url(#grad)" />
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d5bff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6e06d0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <text x="50%" y="68%" font-size="52" font-family="'Geist', 'Segoe UI', sans-serif" font-weight="800" fill="#ffffff" text-anchor="middle">FC</text>
+</svg>
