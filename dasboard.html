@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Finance Class - Diagnóstico Geral</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#6e06d0",
+                        "surface-container-lowest": "#0e0e0e",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-dim": "#131313",
+                        "outline": "#8e90a2",
+                        "surface-container": "#1f1f1f",
+                        "secondary": "#d8b9ff",
+                        "tertiary": "#00dce5",
+                        "secondary-fixed": "#eddcff",
+                        "error": "#ffb4ab",
+                        "inverse-primary": "#104af0",
+                        "inverse-on-surface": "#303030",
+                        "on-surface": "#e2e2e2",
+                        "on-background": "#e2e2e2",
+                        "primary-fixed-dim": "#b8c3ff",
+                        "primary": "#b8c3ff",
+                        "on-tertiary-container": "#bafbff",
+                        "primary-container": "#2d5bff",
+                        "tertiary-container": "#00797e",
+                        "surface-variant": "#353535",
+                        "outline-variant": "#434656",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "on-primary-container": "#efefff",
+                        "surface-tint": "#b8c3ff",
+                        "on-tertiary-fixed": "#002021",
+                        "on-primary": "#002387",
+                        "on-primary-fixed-variant": "#0035bd",
+                        "surface": "#131313",
+                        "primary-fixed": "#dde1ff",
+                        "on-secondary-fixed-variant": "#6200bc",
+                        "secondary-fixed-dim": "#d8b9ff",
+                        "on-tertiary": "#003739",
+                        "inverse-surface": "#e2e2e2",
+                        "on-surface-variant": "#c4c5d9",
+                        "on-secondary": "#450086",
+                        "tertiary-fixed": "#63f7ff",
+                        "on-secondary-container": "#d5b5ff",
+                        "on-primary-fixed": "#001355",
+                        "tertiary-fixed-dim": "#00dce5",
+                        "surface-container-low": "#1b1b1b",
+                        "on-tertiary-fixed-variant": "#004f53",
+                        "background": "#131313",
+                        "surface-container-highest": "#353535",
+                        "surface-bright": "#393939",
+                        "on-secondary-fixed": "#290055"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-margin": "20px",
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "gutter": "16px",
+                        "stack-lg": "40px",
+                        "stack-md": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Geist"],
+                        "body-md": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Geist', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .vibrant-gradient {
+            background: linear-gradient(135deg, #2d5bff 0%, #6e06d0 100%);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary/30 min-h-screen pb-32">
+    <!-- Top App Bar -->
+    <header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl docked full-width top-0 border-b border-white/10 shadow-sm flex justify-between items-center w-full px-container-margin py-base sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded-lg vibrant-gradient flex items-center justify-center text-white text-xs font-bold cursor-pointer" onclick="window.location.href='inicio.html'">FC</div>
+            <h1 class="font-display-lg text-headline-md text-primary dark:text-primary-fixed-dim">Diagnóstico Geral</h1>
+        </div>
+        <div class="relative active:scale-95 transition-transform duration-200 flex items-center gap-4">
+            <span class="material-symbols-outlined text-white/90 cursor-pointer" id="btn-logout" title="Sair" onclick="window.db.auth.signOut()">logout</span>
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 cursor-pointer" onclick="window.location.href='inicio.html'">
+                <img id="profile-img-top" alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmcBV6w-B9MtxWqrgjj3GHyfTkCjuQbOj3y4QWGDi3inxnrH5zkaL_jFSX1sO_RfOP8mSPlk5pp3d3VAYuJCN8Ag1FSnfRDjC8gui2LTc-bxCSAB6deGsOom-FfgPwbXrHQHMPGMSDUDMZsCoLw8fxwlRoROvoUxh47FAEdBiwsOYYGv8oyrMnviLIIMhsN5GDC7GvXud8gFztm_Sfq0V5d2Mbv5TH90giFkp2yKCrpRqPpxMSeP4PRylWJBNTX0kqQ1WIfVOqwPU" />
+            </div>
+        </div>
+    </header>
+    
+    <main class="px-container-margin pt-stack-md flex flex-col gap-gutter">
+        <!-- Filters Pill-style -->
+        <div class="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 no-scrollbar">
+            <button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md text-label-md transition-all active:scale-95 shrink-0">Mês</button>
+            <button class="bg-surface-container-high text-on-surface-variant/80 px-6 py-2 rounded-full font-label-md text-label-md transition-all hover:bg-surface-container-highest shrink-0">Trimestre</button>
+            <button class="bg-surface-container-high text-on-surface-variant/80 px-6 py-2 rounded-full font-label-md text-label-md transition-all hover:bg-surface-container-highest shrink-0">Ano</button>
+            <button class="bg-surface-container-high text-on-surface-variant/80 px-6 py-2 rounded-full font-label-md text-label-md transition-all hover:bg-surface-container-highest shrink-0">Personalizado</button>
+        </div>
+        <!-- Alertas Section -->
+        <section id="alert-section" class="bg-secondary-container/10 border border-secondary-container/30 rounded-xl p-4 flex gap-4 items-start">
+            <div class="bg-secondary-container/20 p-2 rounded-lg">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">warning</span>
+            </div>
+            <div class="flex flex-col gap-1">
+                <p class="font-body-md text-on-surface-variant text-sm">
+                    <span class="font-bold text-on-surface">Alerta:</span> Seus gastos em Lazer aumentaram 25% este mês
+                </p>
+                <p class="font-label-sm text-label-sm text-secondary/80">
+                    <span class="font-bold">Dica:</span> Aumente seu aporte em Tesouro Selic para melhorar sua reserva.
+                </p>
+            </div>
+        </section>
+        <!-- Card 1: Resumo -->
+        <section class="glass-card rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 blur-3xl rounded-full"></div>
+            <div>
+                <p class="font-label-md text-on-surface-variant uppercase tracking-wider text-xs">Saldo Disponível</p>
+                <h2 id="saldo-disponivel" class="font-display-lg text-headline-lg-mobile text-white mt-1">R$ 0,00</h2>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-2">
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-1 text-tertiary">
+                        <span class="material-symbols-outlined text-sm">north_east</span>
+                        <span class="font-label-sm text-label-sm uppercase">Entradas</span>
+                    </div>
+                    <p id="total-entradas" class="font-headline-md text-lg text-on-surface">R$ 0,00</p>
+                </div>
+                <div class="flex flex-col border-l border-white/10 pl-4">
+                    <div class="flex items-center gap-1 text-error">
+                        <span class="material-symbols-outlined text-sm">south_west</span>
+                        <span class="font-label-sm text-label-sm uppercase">Saídas</span>
+                    </div>
+                    <p id="total-saidas" class="font-headline-md text-lg text-on-surface">R$ 0,00</p>
+                </div>
+            </div>
+            <div class="bg-tertiary-container/20 px-3 py-2 rounded-lg flex items-center gap-2 self-start border border-tertiary-container/30 mt-2">
+                <span class="text-sm">✅</span>
+                <span class="font-label-sm text-label-sm text-tertiary-fixed">Você está gastando dentro da meta</span>
+            </div>
+        </section>
+        <!-- Card Investimentos -->
+        <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
+            <div class="flex justify-between items-center">
+                <div class="flex flex-col">
+                    <p class="font-label-md text-on-surface-variant text-xs">Patrimônio Total</p>
+                    <h3 id="patrimonio-total" class="font-headline-md text-headline-md text-primary">R$ 0,00</h3>
+                </div>
+                <span class="material-symbols-outlined text-primary text-3xl">trending_up</span>
+            </div>
+            <div class="flex flex-col gap-3">
+                <div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+                    <span>Alocação</span>
+                    <span class="text-on-surface">Total 100%</span>
+                </div>
+                <div id="alocacao-bar" class="w-full h-3 bg-white/5 rounded-full overflow-hidden flex">
+                    <div class="h-full bg-primary" style="width: 65%"></div>
+                    <div class="h-full bg-secondary" style="width: 25%"></div>
+                    <div class="h-full bg-tertiary" style="width: 10%"></div>
+                </div>
+                <div id="alocacao-legend" class="flex flex-wrap gap-4 mt-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-primary"></div>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Renda Fixa (65%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-secondary"></div>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Ações (25%)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-tertiary"></div>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Cripto (10%)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Bento Grid: Gastos & Receitas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            <!-- Card 2: Gastos por Categoria -->
+            <section class="glass-card rounded-2xl p-6 flex flex-col gap-6">
+                <h4 class="font-headline-md text-body-lg">Gastos por Categoria</h4>
+                <div id="gastos-container" class="flex flex-col gap-4 flex-1">
+                    <p class="text-on-surface-variant text-sm">Carregando...</p>
+                </div>
+            </section>
+            <!-- Card 3: Receitas -->
+            <section class="glass-card rounded-2xl p-6 flex flex-col gap-6">
+                <h4 class="font-headline-md text-body-lg">Fontes de Receita</h4>
+                <div id="receitas-container" class="flex flex-col gap-4 flex-1">
+                    <p class="text-on-surface-variant text-sm">Carregando...</p>
+                </div>
+            </section>
+        </div>
+        <!-- Card 4: Fatura -->
+        <section class="glass-card rounded-2xl p-6 flex flex-col gap-4 border-l-4 border-primary">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="font-label-md text-on-surface-variant uppercase text-xs">Fatura Atual • <span id="fatura-vencimento">Vence 15 Out</span></p>
+                    <h3 id="fatura-atual" class="font-headline-md text-headline-md mt-1">R$ 0,00</h3>
+                </div>
+                <span class="material-symbols-outlined text-primary-fixed-dim">credit_card</span>
+            </div>
+            <div class="flex flex-col gap-2 mt-2">
+                <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div id="fatura-progress-bar" class="h-full vibrant-gradient" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+                    <span id="limite-utilizado-text">Limite utilizado: R$ 0,00</span>
+                    <span id="limite-total-text">Total: R$ 0,00</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-surface/90 dark:bg-surface/90 backdrop-blur-2xl text-primary dark:text-primary-fixed-dim font-label-sm text-label-sm docked full-width bottom-0 rounded-t-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.4)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-2 pb-6 h-20">
+        <!-- Início -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="inicio.html">
+            <span class="material-symbols-outlined mb-0.5">home</span>
+            <span class="font-label-sm">Início</span>
+        </a>
+        <!-- Transações -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="transacoes.html">
+            <span class="material-symbols-outlined mb-0.5">swap_horiz</span>
+            <span class="font-label-sm">Transações</span>
+        </a>
+        <!-- Cartões -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="credito.html">
+            <span class="material-symbols-outlined mb-0.5">credit_card</span>
+            <span class="font-label-sm">Cartões</span>
+        </a>
+        <!-- Investimentos -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="investimentos.html">
+            <span class="material-symbols-outlined mb-0.5">trending_up</span>
+            <span class="font-label-sm">Investimentos</span>
+        </a>
+        <!-- Dashboard -->
+        <a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary dark:text-primary-fixed-dim rounded-xl px-4 py-1.5 active:scale-90 transition-all duration-300" href="dasboard.html">
+            <span class="material-symbols-outlined mb-0.5" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+            <span class="font-label-sm">Dashboard</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/db.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Carrega foto de perfil no topo
+            const savedProfilePic = localStorage.getItem('profile_picture');
+            if (savedProfilePic) {
+                const img = document.getElementById('profile-img-top');
+                if (img) img.src = savedProfilePic;
+            }
+
+            var fc = window.formatCurrency || function(v) {
+                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+            };
+
+            try {
+                if (typeof window.db === 'undefined' || typeof window.db.metrics === 'undefined') {
+                    console.error('db.js not loaded');
+                    return;
+                }
+                var results = await Promise.all([
+                    window.db.metrics.getDashboardMetrics(),
+                    window.db.transacoes.list(),
+                    window.db.investimentos.list(),
+                    window.db.cartoes.list()
+                ]);
+                var metrics = results[0], transacoes = results[1], investimentos = results[2], cartoes = results[3];
+
+                var expenses = (transacoes || []).filter(function(t) { return (t.valor || 0) < 0; });
+                var incomes = (transacoes || []).filter(function(t) { return (t.valor || 0) > 0; });
+                
+                var gastosPorCategoria = {};
+                expenses.forEach(function(t) {
+                    var cat = t.categoria || 'Outros';
+                    gastosPorCategoria[cat] = (gastosPorCategoria[cat] || 0) + Math.abs(t.valor || 0);
+                });
+                var totalGastos = Object.values(gastosPorCategoria).reduce(function(s, v) { return s + v; }, 0);
+                
+                var receitasPorOrigem = {};
+                incomes.forEach(function(t) {
+                    var key = t.descricao || t.categoria || 'Outros';
+                    receitasPorOrigem[key] = (receitasPorOrigem[key] || 0) + (t.valor || 0);
+                });
+                var totalReceitas = Object.values(receitasPorOrigem).reduce(function(s, v) { return s + v; }, 0);
+                
+                var tipos = {}, totalInvestido = 0;
+                (investimentos || []).forEach(function(inv) {
+                    var valor = Number(inv.valor_investido || 0);
+                    // Proporção de rendimento a cada 30 dias decorridos
+                    const dataCriacao = new Date(inv.criado_em);
+                    const dataAtual = new Date();
+                    const diferencaTempo = Math.max(0, dataAtual - dataCriacao);
+                    const diasDecorridos = Math.floor(diferencaTempo / (1000 * 60 * 60 * 24));
+                    const periodosDe30Dias = diasDecorridos / 30;
+                    const valorAtualizado = valor * (1 + (Number(inv.rentabilidade || 0) / 100) * periodosDe30Dias);
+                    
+                    totalInvestido += valorAtualizado;
+                    var tipo = 'Renda Fixa'; // Padrão
+                    tipos[tipo] = (tipos[tipo] || 0) + valorAtualizado;
+                });
+
+                // 1. Saldo
+                var saldoEl = document.getElementById('saldo-disponivel');
+                if (saldoEl) saldoEl.textContent = fc(metrics.saldo);
+                var entradasEl = document.getElementById('total-entradas');
+                if (entradasEl) entradasEl.textContent = fc(metrics.entradas);
+                var saidasEl = document.getElementById('total-saidas');
+                if (saidasEl) saidasEl.textContent = fc(metrics.saidas);
+
+                // 2. Patrimônio / Alocação
+                var patrimonioEl = document.getElementById('patrimonio-total');
+                if (patrimonioEl) patrimonioEl.textContent = fc(totalInvestido);
+                
+                var tipoCores = { 'Renda Fixa': 'bg-primary', 'Ações': 'bg-secondary', 'Cripto': 'bg-tertiary' };
+                var alocacaoBar = document.getElementById('alocacao-bar');
+                var alocacaoLegend = document.getElementById('alocacao-legend');
+                if (alocacaoBar && alocacaoLegend) {
+                    alocacaoBar.innerHTML = '';
+                    alocacaoLegend.innerHTML = '';
+                    if (totalInvestido > 0) {
+                        var entries = Object.entries(tipos).sort(function(a, b) { return b[1] - a[1]; });
+                        entries.forEach(function(entry) {
+                            var tipo = entry[0], valor = entry[1];
+                            var pct = ((valor / totalInvestido) * 100).toFixed(0);
+                            var cor = tipoCores[tipo] || 'bg-primary';
+                            var barDiv = document.createElement('div');
+                            barDiv.className = 'h-full ' + cor;
+                            barDiv.style.width = pct + '%';
+                            alocacaoBar.appendChild(barDiv);
+                            var legendDiv = document.createElement('div');
+                            legendDiv.className = 'flex items-center gap-2';
+                            legendDiv.innerHTML = '<div class="w-2 h-2 rounded-full ' + cor + '"></div><span class="font-label-sm text-label-sm text-on-surface-variant">' + tipo + ' (' + pct + '%)</span>';
+                            alocacaoLegend.appendChild(legendDiv);
+                        });
+                    } else {
+                        alocacaoBar.innerHTML = '<div class="h-full bg-white/10" style="width: 100%"></div>';
+                        alocacaoLegend.innerHTML = '<div class="flex items-center gap-2"><span class="font-label-sm text-label-sm text-on-surface-variant">Nenhum investimento cadastrado</span></div>';
+                    }
+                }
+
+                // 3. Gastos por Categoria
+                var gastosContainer = document.getElementById('gastos-container');
+                if (gastosContainer) {
+                    gastosContainer.innerHTML = '';
+                    if (totalGastos > 0) {
+                        var catIcons = { 'Moradia': 'home_work', 'Alimentação': 'restaurant', 'Lazer': 'sports_esports', 'Transporte': 'directions_car', 'Saúde': 'local_hospital', 'Educação': 'school', 'Serviços': 'build' };
+                        var entries = Object.entries(gastosPorCategoria).sort(function(a, b) { return b[1] - a[1]; });
+                        entries.forEach(function(entry) {
+                            var cat = entry[0], valor = entry[1];
+                            var pct = ((valor / totalGastos) * 100).toFixed(0);
+                            var icon = catIcons[cat] || 'category';
+                            var item = document.createElement('div');
+                            item.className = 'flex flex-col gap-2 mt-2';
+                            item.innerHTML = '<div class="flex justify-between items-center text-sm"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-lg">' + icon + '</span><span class="font-body-md text-on-surface-variant">' + cat + '</span></div><span class="font-label-md">' + pct + '%</span></div><div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-secondary transition-all duration-1000" style="width: ' + pct + '%"></div></div>';
+                            gastosContainer.appendChild(item);
+                        });
+                    } else {
+                        gastosContainer.innerHTML = '<p class="text-on-surface-variant text-sm">Nenhum gasto registrado.</p>';
+                    }
+                }
+
+                // 4. Fontes de Receita
+                var receitasContainer = document.getElementById('receitas-container');
+                if (receitasContainer) {
+                    receitasContainer.innerHTML = '';
+                    if (totalReceitas > 0) {
+                        var entries = Object.entries(receitasPorOrigem).sort(function(a, b) { return b[1] - a[1]; });
+                        entries.forEach(function(entry) {
+                            var origem = entry[0], valor = entry[1];
+                            var pct = ((valor / totalReceitas) * 100).toFixed(0);
+                            var item = document.createElement('div');
+                            item.className = 'flex items-center justify-between group mt-2';
+                            item.innerHTML = '<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary"><span class="material-symbols-outlined">payments</span></div><div><p class="font-body-md text-on-surface">' + origem + '</p><p class="font-label-sm text-on-surface-variant text-xs">' + pct + '% do total</p></div></div><p class="font-label-md text-on-surface">' + fc(valor) + '</p>';
+                            receitasContainer.appendChild(item);
+                        });
+                    } else {
+                        receitasContainer.innerHTML = '<p class="text-on-surface-variant text-sm">Nenhuma receita registrada.</p>';
+                    }
+                }
+
+                // 5. Alertas
+                var alertSection = document.getElementById('alert-section');
+                if (alertSection) {
+                    if (totalGastos > 0 || totalReceitas > 0) {
+                        var alertMsg = '', dicaMsg = '';
+                        if (totalGastos > 0) {
+                            var topGasto = Object.entries(gastosPorCategoria).sort(function(a, b) { return b[1] - a[1]; })[0];
+                            alertMsg = 'Seus maiores gastos foram em ' + topGasto[0] + ' (' + fc(topGasto[1]) + ')';
+                        } else { alertMsg = 'Acompanhe seus gastos mensais.'; }
+                        if (totalReceitas > 0) {
+                            var topReceita = Object.entries(receitasPorOrigem).sort(function(a, b) { return b[1] - a[1]; })[0];
+                            dicaMsg = 'Sua principal fonte de receita é ' + topReceita[0] + ' (' + fc(topReceita[1]) + ')';
+                        } else { dicaMsg = 'Continue gerenciando suas finanças.'; }
+                        alertSection.innerHTML = '<div class="bg-secondary-container/20 p-2 rounded-lg"><span class="material-symbols-outlined text-secondary" style="font-variation-settings: \'FILL\' 1;">warning</span></div><div class="flex flex-col gap-1"><p class="font-body-md text-on-surface-variant text-sm"><span class="font-bold text-on-surface">Alerta:</span> ' + alertMsg + '</p><p class="font-label-sm text-label-sm text-secondary/80"><span class="font-bold">Dica:</span> ' + dicaMsg + '</p></div>';
+                    } else {
+                        alertSection.innerHTML = '<div class="bg-secondary-container/20 p-2 rounded-lg"><span class="material-symbols-outlined text-secondary" style="font-variation-settings: \'FILL\' 1;">warning</span></div><div class="flex flex-col gap-1"><p class="font-body-md text-on-surface-variant text-sm"><span class="font-bold text-on-surface">Alerta:</span> Adicione transações para ver alertas personalizados.</p></div>';
+                    }
+                }
+
+                // 6. Fatura
+                var faturaEl = document.getElementById('fatura-atual');
+                if (faturaEl) faturaEl.textContent = fc(metrics.limiteUtilizado);
+                var faturaProgress = document.getElementById('fatura-progress-bar');
+                var limUtil = metrics.limiteUtilizado || 0;
+                var limTotal = metrics.limiteTotal || 1;
+                var pctLimite = Math.min((limUtil / limTotal) * 100, 100);
+                if (faturaProgress) faturaProgress.style.width = pctLimite + '%';
+                var limiteUtilizadoEl = document.getElementById('limite-utilizado-text');
+                var limiteTotalEl = document.getElementById('limite-total-text');
+                if (limiteUtilizadoEl) limiteUtilizadoEl.textContent = 'Limite utilizado: ' + fc(limUtil);
+                if (limiteTotalEl) limiteTotalEl.textContent = 'Total: ' + fc(limTotal);
+                
+                var vencEl = document.getElementById('fatura-vencimento');
+                if (vencEl && cartoes && cartoes.length > 0) {
+                    var primeiro = cartoes[0];
+                    var months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+                    var now = new Date();
+                    var month = now.getMonth();
+                    if (primeiro.vencimento_dia <= now.getDate()) {
+                        month = (month + 1) % 12;
+                    }
+                    vencEl.textContent = 'Vence ' + primeiro.vencimento_dia + ' ' + months[month];
+                }
+            } catch (err) {
+                console.error('Erro ao carregar dados do dashboard:', err);
+            }
+        });
+    </script>
+</body>
+</html>

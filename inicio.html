@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+    <title>Finance Class | Gestão Financeira Inteligente</title>
+    <!-- PWA Meta Tags -->
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style" />
+    <meta content="#131313" name="theme-color" />
+    <link href="data:application/manifest+json,{'name':'Finance Class','short_name':'Finance Class','display':'standalone','start_url':'.','background_color':'#000000','theme_color':'#131313'}" rel="manifest" />
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/db.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#303030",
+                        "surface-bright": "#393939",
+                        "tertiary": "#00dce5",
+                        "surface-variant": "#353535",
+                        "surface-tint": "#b8c3ff",
+                        "surface-container-high": "#2a2a2a",
+                        "tertiary-fixed-dim": "#00dce5",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-tertiary-container": "#bafbff",
+                        "on-error": "#690005",
+                        "primary": "#b8c3ff",
+                        "tertiary-fixed": "#63f7ff",
+                        "on-background": "#e2e2e2",
+                        "on-primary-fixed-variant": "#0035bd",
+                        "on-tertiary-fixed": "#002021",
+                        "on-secondary-container": "#d5b5ff",
+                        "primary-fixed": "#dde1ff",
+                        "secondary-fixed": "#eddcff",
+                        "on-secondary-fixed": "#290055",
+                        "tertiary-container": "#00797e",
+                        "surface-container-low": "#1b1b1b",
+                        "surface-container": "#1f1f1f",
+                        "outline-variant": "#434656",
+                        "on-tertiary": "#003739",
+                        "on-secondary-fixed-variant": "#6200bc",
+                        "outline": "#8e90a2",
+                        "surface": "#131313",
+                        "surface-dim": "#131313",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed-variant": "#004f53",
+                        "on-primary-fixed": "#001355",
+                        "inverse-surface": "#e2e2e2",
+                        "inverse-primary": "#104af0",
+                        "primary-container": "#2d5bff",
+                        "secondary": "#d8b9ff",
+                        "primary-fixed-dim": "#b8c3ff",
+                        "surface-container-highest": "#353535",
+                        "on-secondary": "#450086",
+                        "on-primary": "#002387",
+                        "on-surface": "#e2e2e2",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "#6e06d0",
+                        "background": "#131313",
+                        "on-surface-variant": "#c4c5d9",
+                        "secondary-fixed-dim": "#d8b9ff",
+                        "error-container": "#93000a",
+                        "on-primary-container": "#efefff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "stack-md": "24px",
+                        "stack-lg": "40px",
+                        "container-margin": "20px",
+                        "stack-sm": "12px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "label-md": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-lg-mobile": ["Geist"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #000000;
+            color: #e2e2e2;
+            font-family: 'Geist', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-card {
+            background: linear-gradient(135deg, #2d5bff 0%, #6e06d0 100%);
+            box-shadow: 0 8px 32px rgba(45, 91, 255, 0.3);
+        }
+
+        .custom-switch:checked {
+            background-color: #b8c3ff;
+            background-image: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .safe-bottom {
+            padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
+        }
+    </style>
+</head>
+
+<body class="dark overflow-x-hidden selection:bg-primary/30">
+    <!-- Top App Bar -->
+    <header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl text-primary dark:text-primary-fixed-dim font-headline-md text-headline-md-mobile docked full-width top-0 border-b border-white/10 shadow-sm flex justify-between items-center w-full px-container-margin py-base sticky top-0 z-50 h-16">
+        <div class="flex items-center gap-3">
+            <img alt="Finance Class Logo" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUH7alp-5uAwebtSGE-qLQjO0nDINeTA_IUmpmBfGCrNgWS_-FEkk-uau2P2Z-ESdH4mlwVRcDjfdnjmIT1ZXL0ku7HOe6JeoQtgXAlDCcejBVowMuKXxHbaPJHq2iy2hz99Wt-tnReAQm8zC_z3z0C5P-CCg2uVWRNjzps3izg8UWjp7krau1L11rpbwlC6TF1AnX_eD-j2N0OMuiXOeu5VgUYXqzO28SO3h1PiS39Ic5qXobptzt-LERoAyn80WE-dAL-AXBfeo" />
+            <h1 class="font-display-lg text-headline-md text-primary dark:text-primary-fixed-dim">Finance Class</h1>
+        </div>
+        <div class="relative w-10 h-10 rounded-full border border-white/10 flex items-center justify-center bg-surface-container hover:bg-surface-container-high/50 transition-colors cursor-pointer active:scale-95 transition-transform duration-200 overflow-hidden" onclick="toggleMenu(true)">
+            <img id="profile-img" alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmcBV6w-B9MtxWqrgjj3GHyfTkCjuQbOj3y4QWGDi3inxnrH5zkaL_jFSX1sO_RfOP8mSPlk5pp3d3VAYuJCN8Ag1FSnfRDjC8gui2LTc-bxCSAB6deGsOom-FfgPwbXrHQHMPGMSDUDMZsCoLw8fxwlRoROvoUxh47FAEdBiwsOYYGv8oyrMnviLIIMhsN5GDC7GvXud8gFztm_Sfq0V5d2Mbv5TH90giFkp2yKCrpRqPpxMSeP4PRylWJBNTX0kqQ1WIfVOqwPU" />
+        </div>
+        <input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="window.db.auth.updateProfilePicture(event)" />
+    </header>
+
+    <!-- Menu Hambúrguer (Drawer Lateral) -->
+    <div id="drawer-menu" class="fixed inset-0 z-[100] hidden">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="toggleMenu(false)"></div>
+        <!-- Drawer Content -->
+        <div class="fixed top-0 left-0 bottom-0 w-[290px] bg-surface-container-low border-r border-white/10 shadow-2xl p-6 flex flex-col justify-between transform -translate-x-full transition-transform duration-300 ease-out z-50" id="drawer-content">
+            <div class="space-y-6">
+                <!-- User Info Header -->
+                <div class="flex items-center gap-3 pb-6 border-b border-white/10">
+                    <div class="relative w-12 h-12 rounded-full overflow-hidden border border-primary/20">
+                        <img id="drawer-profile-img" alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmcBV6w-B9MtxWqrgjj3GHyfTkCjuQbOj3y4QWGDi3inxnrH5zkaL_jFSX1sO_RfOP8mSPlk5pp3d3VAYuJCN8Ag1FSnfRDjC8gui2LTc-bxCSAB6deGsOom-FfgPwbXrHQHMPGMSDUDMZsCoLw8fxwlRoROvoUxh47FAEdBiwsOYYGv8oyrMnviLIIMhsN5GDC7GvXud8gFztm_Sfq0V5d2Mbv5TH90giFkp2yKCrpRqPpxMSeP4PRylWJBNTX0kqQ1WIfVOqwPU" />
+                    </div>
+                    <div>
+                        <p class="font-headline-md text-sm text-white font-bold" id="drawer-user-name">Finance Client</p>
+                        <p class="font-label-sm text-xs text-on-surface-variant" id="drawer-user-email">usuario@exemplo.com</p>
+                    </div>
+                </div>
+                <!-- Menu Items -->
+                <nav class="space-y-2">
+                    <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-white hover:bg-white/5 transition-all text-left font-label-md" onclick="document.getElementById('profile-upload').click(); toggleMenu(false)">
+                        <span class="material-symbols-outlined text-primary">add_a_photo</span>
+                        Trocar Foto de Perfil
+                    </button>
+                    <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-white hover:bg-white/5 transition-all text-left font-label-md" onclick="downloadReport(); toggleMenu(false)">
+                        <span class="material-symbols-outlined text-tertiary">download</span>
+                        Relatório Financeiro
+                    </button>
+                    <a class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-white hover:bg-white/5 transition-all text-left font-label-md" href="https://wa.me/5521992341112" target="_blank" onclick="toggleMenu(false)">
+                        <span class="material-symbols-outlined text-secondary">support_agent</span>
+                        Suporte
+                    </a>
+                </nav>
+            </div>
+            <!-- Sign Out Footer -->
+            <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-error hover:bg-error-container/20 transition-all text-left font-label-md border-t border-white/10 pt-4" onclick="window.db.auth.signOut()">
+                <span class="material-symbols-outlined">logout</span>
+                Sair da Conta
+            </button>
+        </div>
+    </div>
+    
+    <input type="file" id="profile-upload" accept="image/*" class="hidden" onchange="window.db.auth.updateProfilePicture(event)">
+
+    <main class="px-container-margin pt-6 safe-bottom">
+        <!-- Balance Section -->
+        <section class="mb-gutter">
+            <div class="gradient-card rounded-xl p-6 relative overflow-hidden active:scale-[0.98] transition-all duration-300">
+                <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+                <div class="flex justify-between items-start mb-4">
+                    <span class="font-label-md text-white/80 uppercase tracking-widest">Saldo Disponível</span>
+                    <span class="material-symbols-outlined text-white/90 cursor-pointer" id="btn-logout" title="Sair" onclick="window.db.auth.signOut()">logout</span>
+                </div>
+                <h2 id="saldo-disponivel" class="font-display-lg text-display-lg text-white mb-1">R$ 0,00</h2>
+                <div class="flex items-center gap-2 text-white/70">
+                    <span class="material-symbols-outlined text-[16px]">trending_up</span>
+                    <span class="font-label-sm">+ 2,4% este mês</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Current Invoice -->
+        <section class="mb-gutter">
+            <div class="glass-card rounded-xl p-5 flex justify-between items-center active:scale-[0.98] transition-all" onclick="window.location.href='credito.html'">
+                <div>
+                    <span class="font-label-sm text-on-surface-variant block mb-1">Fatura Atual</span>
+                    <h3 id="fatura-atual" class="font-headline-md text-white">R$ 0,00</h3>
+                </div>
+                <div class="text-right">
+                    <span class="font-label-sm text-on-surface-variant block mb-1">Vence em</span>
+                    <span class="font-label-md text-tertiary">15 OUT</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Smart Alert -->
+        <section class="mb-gutter">
+            <div class="bg-primary-container/10 border border-primary/20 rounded-xl p-4 flex gap-4 items-start">
+                <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+                </div>
+                <div>
+                    <p class="font-body-md text-on-surface leading-relaxed">
+                        Mestre, você ainda pode gastar <span class="text-primary font-bold">R$ 1.200</span>, mas que tal colocar parte disso na sua <span class="underline decoration-primary">Caixinha Selic</span> para render?
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Transaction Form -->
+        <section class="mt-stack-lg">
+            <h4 class="font-headline-md text-on-surface mb-gutter">Nova Transação</h4>
+            <div class="glass-card rounded-xl p-6">
+                <form class="space-y-gutter" id="transaction-form">
+                    <!-- Description -->
+                    <div class="space-y-2">
+                        <label class="font-label-md text-on-surface-variant">Descrição</label>
+                        <input id="transacao-desc" class="w-full bg-white/5 border-none border-b border-white/10 focus:ring-2 focus:ring-primary/50 focus:border-primary rounded-lg text-white font-body-md transition-all h-12" placeholder="Ex: Café Starbucks" type="text" required />
+                    </div>
+                    <!-- Row: Value & Category & Type -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="font-label-md text-on-surface-variant">Valor</label>
+                            <input id="transacao-valor" class="w-full bg-white/5 border-none border-b border-white/10 focus:ring-2 focus:ring-primary/50 focus:border-primary rounded-lg text-white font-body-md transition-all h-12" placeholder="R$ 0,00" type="number" step="0.01" required />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="font-label-md text-on-surface-variant">Tipo</label>
+                            <select id="transacao-tipo" class="w-full bg-white/5 border-none border-b border-white/10 focus:ring-2 focus:ring-primary/50 focus:border-primary rounded-lg text-white font-body-md transition-all h-12 appearance-none">
+                                <option class="bg-surface" value="saida">Saída</option>
+                                <option class="bg-surface" value="entrada">Entrada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Switch Transação Fixa -->
+                    <div class="flex items-center justify-between py-2">
+                        <span class="font-label-md text-on-surface">Transação Fixa</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input class="sr-only peer" id="fixed-switch" type="checkbox" />
+                            <div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <!-- Switch Gastei no Cartão -->
+                    <div class="flex items-center justify-between py-2">
+                        <span class="font-label-md text-on-surface">Gastei no Cartão</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input class="sr-only peer" id="card-switch" type="checkbox" />
+                            <div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <div class="hidden space-y-gutter animate-in fade-in slide-in-from-top-2 duration-300" id="card-details">
+                        <div class="space-y-2">
+                            <label class="font-label-md text-on-surface-variant">Selecionar Cartão</label>
+                            <select id="cartao-select" class="w-full bg-white/5 border-none border-b border-white/10 focus:ring-2 focus:ring-primary/50 focus:border-primary rounded-lg text-white font-body-md transition-all h-12 appearance-none">
+                                <option class="bg-surface" value="">Carregando...</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="font-label-md text-on-surface-variant">Número de Parcelas</label>
+                            <input id="parcelas-input" class="w-full bg-white/5 border-none border-b border-white/10 focus:ring-2 focus:ring-primary/50 focus:border-primary rounded-lg text-white font-body-md transition-all h-12" max="24" min="1" type="number" value="1" />
+                        </div>
+                    </div>
+                    <button id="btn-salvar-transacao" class="w-full h-14 bg-primary text-on-primary font-headline-md rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-lg mt-4" type="submit">
+                        Confirmar Transação
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-surface/90 dark:bg-surface/90 backdrop-blur-2xl text-primary dark:text-primary-fixed-dim font-label-sm text-label-sm docked full-width bottom-0 rounded-t-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.4)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-2 pb-6 h-20">
+        <!-- Início -->
+        <a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary dark:text-primary-fixed-dim rounded-xl px-4 py-1.5 active:scale-90 transition-all duration-300" href="inicio.html">
+            <span class="material-symbols-outlined mb-0.5" style="font-variation-settings: 'FILL' 1;">home</span>
+            <span class="font-label-sm">Início</span>
+        </a>
+        <!-- Transações -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="transacoes.html">
+            <span class="material-symbols-outlined mb-0.5">swap_horiz</span>
+            <span class="font-label-sm">Transações</span>
+        </a>
+        <!-- Cartões -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="credito.html">
+            <span class="material-symbols-outlined mb-0.5">credit_card</span>
+            <span class="font-label-sm">Cartões</span>
+        </a>
+        <!-- Investimentos -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="investimentos.html">
+            <span class="material-symbols-outlined mb-0.5">trending_up</span>
+            <span class="font-label-sm">Investimentos</span>
+        </a>
+        <!-- Dashboard -->
+        <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all active:scale-90 duration-300" href="dasboard.html">
+            <span class="material-symbols-outlined mb-0.5">dashboard</span>
+            <span class="font-label-sm">Dashboard</span>
+        </a>
+    </nav>
+
+    <!-- Vanilla JS Interactivity -->
+    <script>
+        // Menu Hambúrguer Control
+        function toggleMenu(show) {
+            const menu = document.getElementById('drawer-menu');
+            const content = document.getElementById('drawer-content');
+            if (show) {
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('-translate-x-full');
+                }, 10);
+            } else {
+                content.classList.add('-translate-x-full');
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // Export Planilha Excel/CSV
+        async function downloadReport() {
+            try {
+                const [transacoes, investimentos, cartoes] = await Promise.all([
+                    window.db.transacoes.list(),
+                    window.db.investimentos.list(),
+                    window.db.cartoes.list()
+                ]);
+                
+                let csvContent = "\ufeff"; // BOM UTF-8
+                csvContent += "RELATÓRIO FINANCEIRO MENSAL - FINANCE CLASS\n\n";
+                
+                // Resumo Geral
+                const entradas = transacoes.filter(t => t.valor > 0).reduce((s, t) => s + Number(t.valor), 0);
+                const saidas = transacoes.filter(t => t.valor < 0).reduce((s, t) => s + Math.abs(Number(t.valor)), 0);
+                const saldo = entradas - saidas;
+                const totalInvestido = investimentos.reduce((s, i) => s + Number(i.valor_investido), 0);
+                
+                csvContent += "RESUMO GERAL\n";
+                csvContent += `Total de Entradas;R$ ${entradas.toFixed(2).replace('.', ',')}\n`;
+                csvContent += `Total de Saídas;R$ ${saidas.toFixed(2).replace('.', ',')}\n`;
+                csvContent += `Saldo Disponível;R$ ${saldo.toFixed(2).replace('.', ',')}\n`;
+                csvContent += `Patrimônio Investido;R$ ${totalInvestido.toFixed(2).replace('.', ',')}\n\n`;
+                
+                // Extrato de Transações
+                csvContent += "EXTRATO DE TRANSAÇÕES\n";
+                csvContent += "Data;Descrição;Categoria;Valor;Parcelas;Cartão\n";
+                transacoes.forEach(t => {
+                    const dataStr = new Date(t.data).toLocaleDateString('pt-BR');
+                    const valorStr = Number(t.valor).toFixed(2).replace('.', ',');
+                    const cartaoNome = t.cartao_id ? (cartoes.find(c => c.id === t.cartao_id)?.nome || "Cartão") : "À Vista";
+                    csvContent += `${dataStr};${t.descricao};${t.categoria};R$ ${valorStr};${t.parcelas};${cartaoNome}\n`;
+                });
+                csvContent += "\n";
+                
+                // Investimentos
+                csvContent += "CARTEIRA DE INVESTIMENTOS\n";
+                csvContent += "Nome do Investimento;Valor Investido;Rentabilidade;Data de Aplicação\n";
+                investimentos.forEach(i => {
+                    const valStr = Number(i.valor_investido).toFixed(2).replace('.', ',');
+                    const dateStr = new Date(i.criado_em).toLocaleDateString('pt-BR');
+                    csvContent += `${i.nome};R$ ${valStr};${i.rentabilidade}%;${dateStr}\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `Relatorio_Finance_Class_${new Date().getMonth() + 1}_${new Date().getFullYear()}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (err) {
+                alert("Erro ao gerar relatório: " + err.message);
+            }
+        }
+
+        async function loadCards() {
+            const select = document.getElementById('cartao-select');
+            if (!select) return;
+            try {
+                const cards = await window.db.cartoes.list();
+                select.innerHTML = '';
+                if (cards.length === 0) {
+                    select.innerHTML = '<option class="bg-surface" value="">Nenhum cartão cadastrado</option>';
+                } else {
+                    cards.forEach(card => {
+                        const opt = document.createElement('option');
+                        opt.className = 'bg-surface';
+                        opt.value = card.id;
+                        opt.textContent = card.nome;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                select.innerHTML = '<option class="bg-surface" value="">Erro ao carregar cartões</option>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadCards();
+            const cardSwitch = document.getElementById('card-switch');
+            const cardDetails = document.getElementById('card-details');
+
+            cardSwitch.addEventListener('change', () => {
+                if (cardSwitch.checked) {
+                    cardDetails.classList.remove('hidden');
+                } else {
+                    cardDetails.classList.add('hidden');
+                }
+            });
+
+            // Carrega infos do usuário no drawer
+            try {
+                const user = await window.db.auth.getUser();
+                if (user) {
+                    document.getElementById('drawer-user-name').textContent = user.user_metadata?.full_name || 'Usuário';
+                    document.getElementById('drawer-user-email').textContent = user.email || '';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
+            // Micro-interaction for all buttons
+            const buttons = document.querySelectorAll('button, a, .glass-card');
+            buttons.forEach(btn => {
+                btn.addEventListener('touchstart', () => {
+                    btn.classList.add('scale-95');
+                });
+                btn.addEventListener('touchend', () => {
+                    btn.classList.remove('scale-95');
+                });
+            });
+
+            // Prevent scrolling on form focus for iOS
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                });
+            });
+        });
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>
