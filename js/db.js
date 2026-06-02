@@ -24,9 +24,12 @@ window.db = {
                 // Criar o workspace
                 if (data.user) {
                     try {
-                        const { data: ws } = await supabaseClient.from('workspaces').insert({ nome: 'Meu Workspace' }).select().single();
-                        if (ws) {
-                            await supabaseClient.from('workspace_users').insert({ workspace_id: ws.id, user_id: data.user.id });
+                        const newWorkspaceId = crypto.randomUUID();
+                        const { error: wsError } = await supabaseClient.from('workspaces').insert({ id: newWorkspaceId, nome: 'Meu Workspace' });
+                        if (!wsError) {
+                            await supabaseClient.from('workspace_users').insert({ workspace_id: newWorkspaceId, user_id: data.user.id });
+                        } else {
+                            console.error('Erro ao criar workspace (pode ser RLS)', wsError);
                         }
                     } catch (err) {
                         console.error('Erro ao criar workspace', err);
@@ -95,23 +98,46 @@ window.db = {
     ensureWorkspace: async () => {
         const user = await window.db.auth.getUser();
         if (!user) return null;
-        const { data: ws } = await supabaseClient.from('workspaces').insert({ nome: 'Meu Workspace' }).select().single();
-        if (ws) {
-            await supabaseClient.from('workspace_users').insert({ workspace_id: ws.id, user_id: user.id });
-            return ws.id;
+        const newWorkspaceId = crypto.randomUUID();
+        const { error: wsError } = await supabaseClient.from('workspaces').insert({ id: newWorkspaceId, nome: 'Meu Workspace' });
+        if (!wsError) {
+            await supabaseClient.from('workspace_users').insert({ workspace_id: newWorkspaceId, user_id: user.id });
+            return newWorkspaceId;
+        } else {
+            console.error('Erro ao criar workspace no ensureWorkspace:', wsError);
+            return null;
         }
-        return null;
     },
+    _workspacePromise: null,
+    _currentWorkspaceId: null,
     getCurrentWorkspace: async () => {
-        const user = await window.db.auth.getUser();
-        if (!user) return null;
-        const { data } = await supabaseClient
-            .from('workspace_users')
-            .select('workspace_id')
-            .eq('user_id', user.id)
-            .limit(1);
-        if (data?.[0]?.workspace_id) return data[0].workspace_id;
-        return await window.db.ensureWorkspace();
+        if (window.db._currentWorkspaceId) return window.db._currentWorkspaceId;
+        if (window.db._workspacePromise) return await window.db._workspacePromise;
+
+        window.db._workspacePromise = (async () => {
+            const user = await window.db.auth.getUser();
+            if (!user) return null;
+            const { data } = await supabaseClient
+                .from('workspace_users')
+                .select('workspace_id')
+                .eq('user_id', user.id)
+                .limit(1);
+            if (data?.[0]?.workspace_id) {
+                window.db._currentWorkspaceId = data[0].workspace_id;
+                return window.db._currentWorkspaceId;
+            }
+            const newId = await window.db.ensureWorkspace();
+            if (newId) {
+                window.db._currentWorkspaceId = newId;
+            }
+            return newId;
+        })();
+
+        try {
+            return await window.db._workspacePromise;
+        } finally {
+            window.db._workspacePromise = null;
+        }
     },
     transacoes: {
         list: async () => {
