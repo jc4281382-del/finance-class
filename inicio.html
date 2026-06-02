@@ -156,7 +156,7 @@
     <!-- Top App Bar -->
     <header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl text-primary dark:text-primary-fixed-dim font-headline-md text-headline-md-mobile docked full-width top-0 border-b border-white/10 shadow-sm flex justify-between items-center w-full px-container-margin py-base sticky top-0 z-50 h-16">
         <div class="flex items-center gap-3">
-            <img alt="Finance Class Logo" class="w-10 h-10 object-contain" src="assets/logo.png" />
+            <img alt="Finance Class Logo" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUH7alp-5uAwebtSGE-qLQjO0nDINeTA_IUmpmBfGCrNgWS_-FEkk-uau2P2Z-ESdH4mlwVRcDjfdnjmIT1ZXL0ku7HOe6JeoQtgXAlDCcejBVowMuKXxHbaPJHq2iy2hz99Wt-tnReAQm8zC_z3z0C5P-CCg2uVWRNjzps3izg8UWjp7krau1L11rpbwlC6TF1AnX_eD-j2N0OMuiXOeu5VgUYXqzO28SO3h1PiS39Ic5qXobptzt-LERoAyn80WE-dAL-AXBfeo" />
             <h1 class="font-display-lg text-headline-md text-primary dark:text-primary-fixed-dim">Finance Class</h1>
         </div>
         <div class="relative w-10 h-10 rounded-full border border-white/10 flex items-center justify-center bg-surface-container hover:bg-surface-container-high/50 transition-colors cursor-pointer active:scale-95 transition-transform duration-200 overflow-hidden" onclick="toggleMenu(true)">
@@ -192,10 +192,6 @@
                         <span class="material-symbols-outlined text-tertiary">download</span>
                         Relatório Financeiro
                     </button>
-                    <a class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-white hover:bg-white/5 transition-all text-left font-label-md" href="assinaturas.html" onclick="toggleMenu(false)">
-                        <span class="material-symbols-outlined text-primary">event_repeat</span>
-                        Assinaturas
-                    </a>
                     <a class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-white hover:bg-white/5 transition-all text-left font-label-md" href="https://wa.me/5521992341112" target="_blank" onclick="toggleMenu(false)">
                         <span class="material-symbols-outlined text-secondary">support_agent</span>
                         Suporte
@@ -222,6 +218,10 @@
                     <span class="material-symbols-outlined text-white/90 cursor-pointer" id="btn-logout" title="Sair" onclick="window.db.auth.signOut()">logout</span>
                 </div>
                 <h2 id="saldo-disponivel" class="font-display-lg text-display-lg text-white mb-1">R$ 0,00</h2>
+                <div class="flex items-center gap-2 text-white/70">
+                    <span class="material-symbols-outlined text-[16px]">trending_up</span>
+                    <span class="font-label-sm">+ 2,4% este mês</span>
+                </div>
             </div>
         </section>
 
@@ -276,20 +276,6 @@
                                 <option class="bg-surface" value="entrada">Entrada</option>
                             </select>
                         </div>
-                    </div>
-                    <!-- Categoria -->
-                    <div class="space-y-2">
-                        <label class="font-label-md text-on-surface-variant">Categoria</label>
-                        <select id="transacao-categoria" class="w-full bg-white/5 border-none border-b border-white/10 focus:ring-2 focus:ring-primary/50 focus:border-primary rounded-lg text-white font-body-md transition-all h-12 appearance-none">
-                            <option class="bg-surface" value="Alimentação">Alimentação</option>
-                            <option class="bg-surface" value="Transporte">Transporte</option>
-                            <option class="bg-surface" value="Lazer">Lazer / Entretenimento</option>
-                            <option class="bg-surface" value="Educação">Educação</option>
-                            <option class="bg-surface" value="Saúde">Saúde</option>
-                            <option class="bg-surface" value="Moradia">Moradia</option>
-                            <option class="bg-surface" value="Serviços">Serviços</option>
-                            <option class="bg-surface" value="Outros">Outros</option>
-                        </select>
                     </div>
                     <!-- Switch Transação Fixa -->
                     <div class="flex items-center justify-between py-2">
@@ -504,4 +490,3 @@
     <script src="js/app.js"></script>
 </body>
 </html>
-

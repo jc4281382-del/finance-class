@@ -190,18 +190,9 @@
                         <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1.5">Valor Investido</label>
                         <input type="number" name="valor_investido" step="0.01" min="0" required class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary transition-colors" placeholder="R$ 0,00" />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1.5">Rentabilidade (%)</label>
-                            <input type="number" name="rentabilidade" step="0.01" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary transition-colors" placeholder="Ex: 10" />
-                        </div>
-                        <div>
-                            <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1.5">Período</label>
-                            <select name="rentabilidade_tipo" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary transition-colors appearance-none">
-                                <option value="am">Ao Mês (a.m.)</option>
-                                <option value="aa">Ao Ano (a.a.)</option>
-                            </select>
-                        </div>
+                    <div>
+                        <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1.5">Rentabilidade (%) ao mês</label>
+                        <input type="number" name="rentabilidade" step="0.01" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary transition-colors" placeholder="Ex: 10" />
                     </div>
                     <button type="submit" class="w-full bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-lg">add</span>
@@ -295,17 +286,9 @@
                         const diferencaTempo = Math.max(0, dataAtual - dataCriacao);
                         const diasDecorridos = Math.floor(diferencaTempo / (1000 * 60 * 60 * 24));
                         
-                        // Rentabilidade rate adjustment based on period (am/aa)
-                        let rent = Number(inv.rentabilidade || 0);
-                        const rentTipo = inv.rentabilidade_tipo || 'am';
-                        if (rentTipo === 'aa') {
-                            // Converter % ao ano para % ao mês: (1 + r_a)^(1/12) - 1
-                            rent = (Math.pow(1 + (rent / 100), 1/12) - 1) * 100;
-                        }
-                        
                         // Proporção de rendimento a cada 30 dias
                         const periodosDe30Dias = diasDecorridos / 30;
-                        const valorAtualizado = valorOriginal * Math.pow(1 + (rent / 100), periodosDe30Dias);
+                        const valorAtualizado = valorOriginal * (1 + (rent / 100) * periodosDe30Dias);
                         
                         totalAcumulado += valorAtualizado;
 
@@ -359,7 +342,6 @@
                 const nome = form.nome.value.trim();
                 const valor_investido = parseFloat(form.valor_investido.value);
                 const rentabilidade = form.rentabilidade.value ? parseFloat(form.rentabilidade.value) : 0;
-                const rentabilidade_tipo = form.rentabilidade_tipo.value;
 
                 if (!nome || isNaN(valor_investido)) return;
 
@@ -367,7 +349,7 @@
                 btn.innerHTML = `<span class="material-symbols-outlined text-lg animate-spin">sync</span> Salvando...`;
 
                 try {
-                    await window.db.investimentos.add({ nome, valor_investido, rentabilidade, rentabilidade_tipo });
+                    await window.db.investimentos.add({ nome, valor_investido, rentabilidade });
                     form.reset();
                     await loadInvestments();
                 } catch (err) {
@@ -395,5 +377,4 @@
     </script>
 </body>
 </html>
-
 
