@@ -1,17 +1,8 @@
 // db.js - Conexão Real com Supabase para Autenticação
 const SUPABASE_URL = 'https://xatxelcacgnuurwyumdn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhdHhlbGNhY2dudXVyd3l1bWRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTkyMDcsImV4cCI6MjA5NTYzNTIwN30.XDf8iy7c3Xc-42iXTKjE9B4IShtSCojCQQ8jvbuolDI';
-const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhdHhlbGNhY2dudXVyd3l1bWRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDA1OTIwNywiZXhwIjoyMDk1NjM1MjA3fQ.8-hSqOAkpFIYY-9-2xyUQxqk7JiZi8iXqiecmDBlotM';
-
 // Rename the local variable to avoid conflict with the global 'supabase' variable from the CDN
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-    }
-});
 
 window.db = {
     supabase: supabaseClient,
@@ -30,12 +21,12 @@ window.db = {
                 
                 if (error) throw error;
                 
-                // Criar o workspace usando a chave Service Role para contornar o RLS
+                // Criar o workspace
                 if (data.user) {
                     try {
-                        const { data: ws } = await supabaseAdmin.from('workspaces').insert({ nome: 'Meu Workspace' }).select().single();
+                        const { data: ws } = await supabaseClient.from('workspaces').insert({ nome: 'Meu Workspace' }).select().single();
                         if (ws) {
-                            await supabaseAdmin.from('workspace_users').insert({ workspace_id: ws.id, user_id: data.user.id });
+                            await supabaseClient.from('workspace_users').insert({ workspace_id: ws.id, user_id: data.user.id });
                         }
                     } catch (err) {
                         console.error('Erro ao criar workspace', err);
@@ -104,9 +95,9 @@ window.db = {
     ensureWorkspace: async () => {
         const user = await window.db.auth.getUser();
         if (!user) return null;
-        const { data: ws } = await supabaseAdmin.from('workspaces').insert({ nome: 'Meu Workspace' }).select().single();
+        const { data: ws } = await supabaseClient.from('workspaces').insert({ nome: 'Meu Workspace' }).select().single();
         if (ws) {
-            await supabaseAdmin.from('workspace_users').insert({ workspace_id: ws.id, user_id: user.id });
+            await supabaseClient.from('workspace_users').insert({ workspace_id: ws.id, user_id: user.id });
             return ws.id;
         }
         return null;

@@ -10,7 +10,7 @@
     <link rel="manifest" href="manifest.json" />
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" integrity="sha384-1DcZPGeODWbGGjS/i/n4ULX/pEc0DPcKK2WhyuWEmBXRfzOwoVTDQBN9C3C5jJHK" crossorigin="anonymous"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
@@ -18,7 +18,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha384-o+Hkm/usHFhCEWo1Ae1cLsOLiQQNrD2UfI424QDAaiZR7URnC8v35ey7s2sbGZHB" crossorigin="anonymous"></script>
     <script src="js/db.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -141,7 +141,7 @@
         class="fixed top-0 w-full bg-background/80 backdrop-blur-xl border-b border-white/10 shadow-sm flex items-center justify-between px-container-margin h-16 w-full z-50">
         <div class="flex items-center gap-2">
             <img alt="Finance Class Logo" class="w-8 h-8 object-contain"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_6obasz_CWvbd5QKbkmDVgLJKUsB8yP2RkAkksCbRawwWhmyjiRF4J9aGGRX3rzC2EX04Fc8nS6hUW2qur9Y63ft9XgNzeQDnVrGFWIPTC9Wj9iSe6R5dZStc1qNxP3K-xnbG3uMJ6Po9UfE1AiJeV24CBOpJA_klJ9j7A0VETUN1z9Tl49_QKOKd9XwrgD6yJ9EgHC35gmfMdHBZzOMmQJpYQauyROEC-Wi6hjlhcHaSFJRp9JFO0wSEg2S39P_yhkdLwnZNCHk" />
+                src="assets/logo.png" />
             <span
                 class="font-headline-md text-headline-md font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Finance Class</span>
         </div>
@@ -158,7 +158,7 @@
         <!-- Hero Section -->
         <div class="z-10 text-center mb-10">
             <img alt="Finance Class Large Logo" class="w-20 h-20 mx-auto mb-4"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_6obasz_CWvbd5QKbkmDVgLJKUsB8yP2RkAkksCbRawwWhmyjiRF4J9aGGRX3rzC2EX04Fc8nS6hUW2qur9Y63ft9XgNzeQDnVrGFWIPTC9Wj9iSe6R5dZStc1qNxP3K-xnbG3uMJ6Po9UfE1AiJeV24CBOpJA_klJ9j7A0VETUN1z9Tl49_QKOKd9XwrgD6yJ9EgHC35gmfMdHBZzOMmQJpYQauyROEC-Wi6hjlhcHaSFJRp9JFO0wSEg2S39P_yhkdLwnZNCHk" />
+                src="assets/logo.png" />
             <h1
                 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-2">
                 Bem-vindo ao futuro das suas finanças
@@ -375,6 +375,15 @@
             const pass = document.getElementById('register-password').value;
             const errEl = document.getElementById('register-error');
 
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(pass)) {
+                errEl.innerText = "A senha deve conter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial.";
+                errEl.classList.remove('hidden');
+                errEl.classList.add('text-error');
+                errEl.classList.remove('text-primary');
+                return;
+            }
+
             const { user, session, error } = await window.db.auth.signUp(email, pass, name);
             if (error) {
                 errEl.innerText = error.message;
@@ -398,3 +407,4 @@
 </body>
 
 </html>
+

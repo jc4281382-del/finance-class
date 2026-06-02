@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (!desc || isNaN(val)) return;
             
+            const categoriaInput = document.getElementById('transacao-categoria');
+            
             // Adiciona o indicador visual "📌 Fixa" na descrição
             if (fixedSwitch && fixedSwitch.checked) {
                 desc += ' 📌 Fixa';
@@ -50,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const transacao = {
                 descricao: desc,
                 valor: tipo === 'saida' ? -Math.abs(val) : Math.abs(val),
-                categoria: 'Outros',
+                categoria: categoriaInput ? categoriaInput.value : 'Outros',
                 parcelas: 1,
                 data: new Date().toISOString()
             };
