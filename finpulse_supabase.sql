@@ -72,6 +72,10 @@ CREATE POLICY "Acesso aos próprios workspaces" ON public.workspaces
         id IN (SELECT workspace_id FROM public.workspace_users WHERE user_id = auth.uid())
     );
 
+-- Workspaces: Permitir que novos workspaces sejam criados por usuários autenticados
+CREATE POLICY "Permitir inserção de workspaces" ON public.workspaces
+    FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+
 -- Cartões de Crédito: Acesso via Workspace
 CREATE POLICY "Acesso aos cartões do workspace" ON public.cartoes_credito
     FOR ALL USING (
