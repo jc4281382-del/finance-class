@@ -210,6 +210,53 @@
         </section>
     </main>
 
+    <!-- Chat IA Consultor de Finanças -->
+    <div id="ia-chat-modal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm hidden flex-col items-center justify-end md:justify-center p-4 transition-all duration-300">
+        <div class="bg-surface-container rounded-t-2xl md:rounded-2xl w-full max-w-md h-[80vh] md:h-[600px] flex flex-col overflow-hidden border border-white/10 shadow-2xl relative">
+            <!-- Header -->
+            <div class="bg-surface/80 backdrop-blur-md p-4 flex items-center justify-between border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+                    </div>
+                    <div>
+                        <h3 class="font-headline-md text-base text-on-surface">Consultor de Finanças</h3>
+                        <p class="font-label-sm text-xs text-on-surface-variant">Online</p>
+                    </div>
+                </div>
+                <button onclick="toggleChat(false)" class="p-2 rounded-full hover:bg-white/5 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-on-surface-variant">close</span>
+                </button>
+            </div>
+            
+            <!-- Messages -->
+            <div id="ia-chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+                <div class="flex items-start gap-2 max-w-[85%]">
+                    <div class="w-8 h-8 rounded-full bg-primary/20 flex-shrink-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+                    </div>
+                    <div class="bg-surface-container-high p-3 rounded-2xl rounded-tl-none border border-white/5 text-on-surface text-sm font-body-md">
+                        Olá! Sou o seu Consultor de Finanças por IA. Como posso te ajudar com seus investimentos hoje?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <form id="ia-chat-form" class="p-4 bg-surface/80 backdrop-blur-md border-t border-white/5 flex gap-2">
+                <input type="text" id="ia-chat-input" class="flex-1 bg-surface-container-high border border-outline-variant rounded-full px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary transition-all" placeholder="Digite sua mensagem...">
+                <button type="submit" class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary active:scale-95 transition-all shadow-lg shadow-primary/20 flex-shrink-0">
+                    <span class="material-symbols-outlined">send</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FAB Consultor de Finanças -->
+    <button onclick="toggleChat(true)" class="fixed bottom-24 right-4 z-50 bg-primary text-on-primary p-4 rounded-full shadow-lg shadow-primary/30 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all group">
+        <span class="material-symbols-outlined">smart_toy</span>
+        <span class="font-label-md font-semibold hidden md:block">Consultor IA</span>
+    </button>
+
     <!-- BottomNavBar -->
     <nav class="bg-surface/90 dark:bg-surface/90 backdrop-blur-2xl text-primary dark:text-primary-fixed-dim font-label-sm text-label-sm docked full-width bottom-0 rounded-t-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.4)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-2 pb-6 h-20">
         <!-- Início -->
@@ -368,6 +415,103 @@
                         <span class="material-symbols-outlined text-lg">add</span>
                         Adicionar Investimento
                     `;
+                }
+            });
+
+            // Chat Logic
+            window.toggleChat = function(show) {
+                const modal = document.getElementById('ia-chat-modal');
+                if (show) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            };
+
+            document.getElementById('ia-chat-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = document.getElementById('ia-chat-input');
+                const message = input.value.trim();
+                if (!message) return;
+
+                const messagesContainer = document.getElementById('ia-chat-messages');
+                
+                // Add user message
+                messagesContainer.innerHTML += `
+                    <div class="flex items-start gap-2 max-w-[85%] self-end flex-row-reverse">
+                        <div class="w-8 h-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-primary text-sm">person</span>
+                        </div>
+                        <div class="bg-primary/20 p-3 rounded-2xl rounded-tr-none border border-primary/20 text-on-surface text-sm font-body-md">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                input.value = '';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Add loading indicator
+                const loadingId = 'loading-' + Date.now();
+                messagesContainer.innerHTML += `
+                    <div id="${loadingId}" class="flex items-start gap-2 max-w-[85%]">
+                        <div class="w-8 h-8 rounded-full bg-primary/20 flex-shrink-0 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-sm animate-spin">sync</span>
+                        </div>
+                        <div class="bg-surface-container-high p-3 rounded-2xl rounded-tl-none border border-white/5 text-on-surface-variant text-sm font-body-md italic">
+                            Digitando...
+                        </div>
+                    </div>
+                `;
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                try {
+                    // Fetch from Webhook
+                    const response = await fetch('https://webhook.agent-ia.tech/webhook/finance-class', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: message })
+                    });
+                    
+                    let dataText = '';
+                    if (response.ok) {
+                        try {
+                            const data = await response.json();
+                            dataText = data.response || data.message || JSON.stringify(data);
+                        } catch {
+                            dataText = await response.text();
+                        }
+                    } else {
+                        dataText = "Desculpe, ocorreu um erro ao contatar o consultor IA.";
+                    }
+
+                    document.getElementById(loadingId).remove();
+                    
+                    // Add AI message
+                    messagesContainer.innerHTML += `
+                        <div class="flex items-start gap-2 max-w-[85%]">
+                            <div class="w-8 h-8 rounded-full bg-primary/20 flex-shrink-0 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+                            </div>
+                            <div class="bg-surface-container-high p-3 rounded-2xl rounded-tl-none border border-white/5 text-on-surface text-sm font-body-md whitespace-pre-wrap">${dataText || 'Mensagem processada com sucesso.'}</div>
+                        </div>
+                    `;
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                } catch (err) {
+                    document.getElementById(loadingId).remove();
+                    messagesContainer.innerHTML += `
+                        <div class="flex items-start gap-2 max-w-[85%]">
+                            <div class="w-8 h-8 rounded-full bg-error/20 flex-shrink-0 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-error text-sm">error</span>
+                            </div>
+                            <div class="bg-surface-container-high p-3 rounded-2xl rounded-tl-none border border-error/20 text-error text-sm font-body-md">
+                                Erro de conexão com o servidor da IA.
+                            </div>
+                        </div>
+                    `;
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
             });
 

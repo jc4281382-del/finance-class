@@ -19,6 +19,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -201,6 +202,13 @@
                 <span class="font-label-sm text-label-sm text-tertiary-fixed">Você está gastando dentro da meta</span>
             </div>
         </section>
+        <!-- Gráfico de Saúde Financeira -->
+        <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
+            <h4 class="font-headline-md text-body-lg">Saúde Financeira</h4>
+            <div class="w-full h-48 relative">
+                <canvas id="saude-financeira-chart"></canvas>
+            </div>
+        </section>
         <!-- Card Investimentos -->
         <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
             <div class="flex justify-between items-center">
@@ -372,6 +380,44 @@
                 if (entradasEl) entradasEl.textContent = fc(metrics.entradas);
                 var saidasEl = document.getElementById('total-saidas');
                 if (saidasEl) saidasEl.textContent = fc(metrics.saidas);
+
+                // Gráfico Chart.js - Saúde Financeira
+                var ctx = document.getElementById('saude-financeira-chart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Entradas', 'Saídas'],
+                            datasets: [{
+                                label: 'Valor em R$',
+                                data: [metrics.entradas, metrics.saidas],
+                                backgroundColor: [
+                                    '#00dce5', // tertiary (Entradas)
+                                    '#ffb4ab'  // error (Saídas)
+                                ],
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: 'rgba(255,255,255,0.05)' },
+                                    ticks: { color: '#c4c5d9' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#c4c5d9' }
+                                }
+                            }
+                        }
+                    });
+                }
 
                 // 2. Patrimônio / Alocação
                 var patrimonioEl = document.getElementById('patrimonio-total');

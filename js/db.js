@@ -213,6 +213,17 @@ window.db = {
                 .single();
             if (error) throw error;
             return data;
+        },
+        remove: async (id) => {
+            const workspaceId = await window.db.getCurrentWorkspace();
+            if (!workspaceId) throw new Error('Nenhum workspace encontrado');
+            const { error } = await supabaseClient
+                .from('cartoes_credito')
+                .delete()
+                .eq('id', id)
+                .eq('workspace_id', workspaceId);
+            if (error) throw error;
+            return true;
         }
     },
     investimentos: {

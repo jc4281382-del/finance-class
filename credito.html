@@ -179,6 +179,11 @@
                     <span id="limite-utilizado" class="text-on-surface-variant/60">Valor gasto: R$ 0,00</span>
                     <span id="limite-total" class="text-on-surface-variant/60">Limite: R$ 0,00</span>
                 </div>
+                <div class="flex justify-end pt-2 mt-2 border-t border-white/5">
+                    <button id="btn-excluir-cartao" class="text-error/70 hover:text-error text-xs flex items-center gap-1 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-[14px]">delete</span> Excluir Cartão
+                    </button>
+                </div>
             </div>
 
             <!-- Fatura Detalhada (Substituindo o antigo botão de pagar global) -->
@@ -409,20 +414,50 @@
             }
 
             // O Gasto Total do cartão é a soma real de todas as transações (compras - pagamentos)
-            // Como compras são negativas e pagamentos positivos, a soma direta dá o saldo negativo do cartão.
+            // Compras são negativas e pagamentos são positivos
             const rawBalance = cardTransacoes.reduce((sum, t) => sum + Number(t.valor), 0);
-            const cardUsed = Math.abs(Math.min(rawBalance, 0)); // Apenas o que está devendo (se for > 0, tem crédito sobrando)
+            
+            // Valor gasto real é o saldo devedor (quando rawBalance é negativo)
+            let cardUsed = 0;
+            if (rawBalance < 0) {
+                cardUsed = Math.abs(rawBalance);
+            }
 
             const limiteTotal = Number(card.limite);
-            const disponivel = limiteTotal - cardUsed;
+            const disponivel = Math.max(0, limiteTotal - cardUsed);
 
-            saldoEl.innerText = formatCurrency(Math.max(0, disponivel));
+            saldoEl.innerText = formatCurrency(disponivel);
             utilizadoEl.innerText = `Valor gasto: ${formatCurrency(cardUsed)}`;
             totalEl.innerText = `Limite: ${formatCurrency(limiteTotal)}`;
 
             if (progressBar) {
                 const pct = limiteTotal > 0 ? Math.min(100, (cardUsed / limiteTotal) * 100) : 0;
                 progressBar.style.width = `${pct}%`;
+            }
+
+            // Ação de excluir o cartão
+            const btnExcluir = document.getElementById('btn-excluir-cartao');
+            if (btnExcluir) {
+                btnExcluir.onclick = () => deleteCard(card.id, card.nome);
+            }
+        }
+
+        // Excluir Cartão de Crédito
+        async function deleteCard(cardId, cardNome) {
+            if (!confirm(`Tem certeza que deseja excluir o cartão "${cardNome}" e todo o seu histórico? Esta ação não pode ser desfeita.`)) return;
+            try {
+                const btnExcluir = document.getElementById('btn-excluir-cartao');
+                if (btnExcluir) btnExcluir.innerText = 'Excluindo...';
+                
+                await window.db.cartoes.remove(cardId);
+                alert('Cartão excluído com sucesso.');
+                
+                activeCardIndex = 0;
+                await loadCards();
+            } catch (err) {
+                alert('Erro ao excluir cartão: ' + err.message);
+                const btnExcluir = document.getElementById('btn-excluir-cartao');
+                if (btnExcluir) btnExcluir.innerHTML = '<span class="material-symbols-outlined text-[14px]">delete</span> Excluir Cartão';
             }
         }
 
@@ -519,7 +554,12 @@
                     document.getElementById('invoice-items-list').innerHTML = `<div class="glass-card p-6 rounded-xl text-center text-on-surface-variant/60 text-sm">Nenhum cartão ativo.</div>`;
                     const progressBar = document.querySelector('.h-2.w-full .h-full');
                     if (progressBar) progressBar.style.width = '0%';
+                    const btnExcluir = document.getElementById('btn-excluir-cartao');
+                    if (btnExcluir) btnExcluir.style.display = 'none';
                     return;
+                } else {
+                    const btnExcluir = document.getElementById('btn-excluir-cartao');
+                    if (btnExcluir) btnExcluir.style.display = 'flex';
                 }
 
                 // Cria cada slide
