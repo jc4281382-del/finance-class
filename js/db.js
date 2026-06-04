@@ -276,7 +276,12 @@ window.db = {
             (transacoes || []).forEach(t => {
                 if (t.valor > 0) entradas += Number(t.valor);
                 else saidas += Math.abs(Number(t.valor));
-                if (t.cartao_id) limiteUtilizado += Math.abs(Number(t.valor));
+                
+                // Para a fatura atual, considera o valor da parcela das despesas no cartão
+                if (t.cartao_id && t.valor < 0 && (!t.descricao || !t.descricao.startsWith('Pgto Parcela'))) {
+                    const numParcelas = parseInt(t.parcelas) || 1;
+                    limiteUtilizado += (Math.abs(Number(t.valor)) / numParcelas);
+                }
             });
             const patrimonioTotal = (investimentos || []).reduce((sum, i) => sum + Number(i.valor_investido || 0), 0);
             const limiteTotal = (cartoes || []).reduce((sum, c) => sum + Number(c.limite || 0), 0);

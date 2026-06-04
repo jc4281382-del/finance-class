@@ -26,6 +26,25 @@ const updateMetrics = async () => {
     if (entradasEl) entradasEl.innerText = formatCurrency(metrics.entradas);
     if (saidasEl) saidasEl.innerText = formatCurrency(metrics.saidas);
     if (patrimonioEl) patrimonioEl.innerText = formatCurrency(metrics.patrimonioTotal);
+
+    // Atualização dinâmica do status da meta no dashboard
+    const metaStatusContainer = document.getElementById('meta-status-container');
+    const metaStatusIcon = document.getElementById('meta-status-icon');
+    const metaStatusText = document.getElementById('meta-status-text');
+
+    if (metaStatusContainer && metaStatusIcon && metaStatusText) {
+        if (metrics.saidas > metrics.entradas) {
+            metaStatusContainer.className = "bg-error/10 px-3 py-2 rounded-lg flex items-center gap-2 self-start border border-error/20 mt-2";
+            metaStatusIcon.innerText = "⚠️";
+            metaStatusText.className = "font-label-sm text-label-sm text-error";
+            metaStatusText.innerText = "Você está ultrapassando seus limites de gasto";
+        } else {
+            metaStatusContainer.className = "bg-tertiary-container/20 px-3 py-2 rounded-lg flex items-center gap-2 self-start border border-tertiary-container/30 mt-2";
+            metaStatusIcon.innerText = "✅";
+            metaStatusText.className = "font-label-sm text-label-sm text-tertiary-fixed";
+            metaStatusText.innerText = "Você está gastando dentro da meta";
+        }
+    }
 };
 
 const getDynamicDueDateString = (vencimentoDia) => {
