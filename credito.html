@@ -163,7 +163,7 @@
             <div class="glass-card p-6 rounded-xl space-y-4">
                 <div class="flex justify-between items-center">
                     <span class="text-on-surface-variant font-label-md text-label-md">Limite Disponível</span>
-                    <span id="saldo-disponivel" class="text-on-surface font-headline-md text-headline-md">R$ 0,00</span>
+                    <span id="limite-disponivel" class="text-on-surface font-headline-md text-headline-md">R$ 0,00</span>
                 </div>
                 <div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
                     <div class="h-full bg-primary w-[0%] shadow-[0_0_12px_rgba(184,195,255,0.4)] transition-all duration-300"></div>
@@ -340,7 +340,7 @@
             if (!currentCards.length) return;
             const card = currentCards[activeCardIndex];
 
-            const saldoEl = document.getElementById('saldo-disponivel');
+            const saldoEl = document.getElementById('limite-disponivel');
             const utilizadoEl = document.getElementById('limite-utilizado');
             const totalEl = document.getElementById('limite-total');
             const progressBar = document.querySelector('.h-2.w-full .h-full');
@@ -562,7 +562,7 @@
 
                 if (!cards.length) {
                     carousel.innerHTML = `<div class="flex items-center justify-center w-full py-12 text-on-surface-variant font-body-md">Nenhum cartão encontrado. Adicione um abaixo.</div>`;
-                    document.getElementById('saldo-disponivel').innerText = 'R$ 0,00';
+                    document.getElementById('limite-disponivel').innerText = 'R$ 0,00';
                     document.getElementById('limite-utilizado').innerText = 'Valor gasto: R$ 0,00';
                     document.getElementById('limite-total').innerText = 'Limite: R$ 0,00';
                     document.getElementById('invoice-items-list').innerHTML = `<div class="glass-card p-6 rounded-xl text-center text-on-surface-variant/60 text-sm">Nenhum cartão ativo.</div>`;
