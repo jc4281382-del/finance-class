@@ -417,19 +417,20 @@
             }
 
             const limiteTotal = Number(card.limite);
-            // Fórmula estrita: Limite Total - Compras Fatura Aberta + Pagamentos Fatura
-            let disponivel = limiteTotal - somaComprasFaturaAberta + somaPagamentosFatura;
-            if (disponivel > limiteTotal) disponivel = limiteTotal;
+            
+            // O valor gasto é o balanço total negativo das transações (compras subtraindo os pagamentos)
+            const saldoCru = cardTransacoes.reduce((s, t) => s + Number(t.valor), 0);
+            const valorGasto = Math.abs(Math.min(0, saldoCru));
+            
+            let disponivel = limiteTotal - valorGasto;
             if (disponivel < 0) disponivel = 0;
 
-            const cardUsed = Math.max(0, limiteTotal - disponivel);
-
             saldoEl.innerText = formatCurrency(disponivel);
-            utilizadoEl.innerText = `Valor gasto: ${formatCurrency(cardUsed)}`;
+            utilizadoEl.innerText = `Valor gasto: ${formatCurrency(valorGasto)}`;
             totalEl.innerText = `Limite: ${formatCurrency(limiteTotal)}`;
 
             if (progressBar) {
-                const pct = limiteTotal > 0 ? Math.min(100, (cardUsed / limiteTotal) * 100) : 0;
+                const pct = limiteTotal > 0 ? Math.min(100, (valorGasto / limiteTotal) * 100) : 0;
                 progressBar.style.width = `${pct}%`;
             }
 
