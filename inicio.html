@@ -19,13 +19,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/db.js"></script>
     <!-- Tailwind CSS -->
-    <script>
-        const originalWarn = console.warn;
-        console.warn = (...args) => {
-            if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
-            originalWarn(...args);
-        };
-    </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -239,7 +232,7 @@
                 </div>
                 <div class="text-right">
                     <span class="font-label-sm text-on-surface-variant block mb-1">Vence em</span>
-                    <span class="font-label-md text-tertiary">15 OUT</span>
+                    <span id="fatura-vencimento" class="font-label-md text-tertiary dynamic-vencimento">15 OUT</span>
                 </div>
             </div>
         </section>
@@ -281,6 +274,19 @@
                                 <option class="bg-surface" value="entrada">Entrada</option>
                             </select>
                         </div>
+                    </div>
+                    <!-- Categoria -->
+                    <div class="space-y-2">
+                        <label class="font-label-md text-on-surface-variant">Categoria</label>
+                        <select id="transacao-categoria" class="w-full bg-white/5 border-none border-b border-white/10 focus:ring-2 focus:ring-primary/50 focus:border-primary rounded-lg text-white font-body-md transition-all h-12 appearance-none">
+                            <option class="bg-surface" value="Alimentação">Alimentação</option>
+                            <option class="bg-surface" value="Moradia">Moradia</option>
+                            <option class="bg-surface" value="Transporte">Transporte</option>
+                            <option class="bg-surface" value="Saúde">Saúde</option>
+                            <option class="bg-surface" value="Educação">Educação</option>
+                            <option class="bg-surface" value="Lazer">Lazer</option>
+                            <option class="bg-surface" value="Outros" selected>Outros</option>
+                        </select>
                     </div>
                     <!-- Switch Transação Fixa -->
                     <div class="flex items-center justify-between py-2">

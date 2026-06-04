@@ -8,13 +8,6 @@
     <link rel="manifest" href="manifest.json" />
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <script>
-        const originalWarn = console.warn;
-        console.warn = (...args) => {
-            if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
-            originalWarn(...args);
-        };
-    </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet" />
@@ -334,15 +327,16 @@
                         const valorOriginal = Number(inv.valor_investido || 0);
                         const rent = Number(inv.rentabilidade || 0);
                         
-                        // Cálculo dos dias decorridos desde criado_em
+                        // Cálculo dos dias decorridos desde criado_em (com decimais para rendimento gradual)
                         const dataCriacao = new Date(inv.criado_em);
                         const dataAtual = new Date();
                         const diferencaTempo = Math.max(0, dataAtual - dataCriacao);
-                        const diasDecorridos = Math.floor(diferencaTempo / (1000 * 60 * 60 * 24));
+                        const diasDecorridosFrac = diferencaTempo / (1000 * 60 * 60 * 24);
+                        const diasDecorridos = Math.floor(diasDecorridosFrac);
                         
-                        // Proporção de rendimento a cada 30 dias
-                        const periodosDe30Dias = diasDecorridos / 30;
-                        const valorAtualizado = valorOriginal * (1 + (rent / 100) * periodosDe30Dias);
+                        // Cálculo pro-rata diário gradual
+                        const taxaDiaria = (rent / 100) / 30;
+                        const valorAtualizado = valorOriginal * (1 + taxaDiaria * diasDecorridosFrac);
                         
                         totalAcumulado += valorAtualizado;
 
@@ -467,12 +461,21 @@
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
                 try {
-                    // Fetch from Webhook
+                    // Fetch from Webhook with timeout, CORS, and Authorization Header
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
                     const response = await fetch('https://webhook.agent-ia.tech/webhook/finance-class', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        mode: 'cors',
+                        signal: controller.signal,
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Basic ZmluYW5jZWNsYXNzOnNlY3JldGtleTEyMw=='
+                        },
                         body: JSON.stringify({ message: message })
                     });
+                    clearTimeout(timeoutId);
                     
                     let dataText = '';
                     if (response.ok) {

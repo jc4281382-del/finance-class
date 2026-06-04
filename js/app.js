@@ -7,6 +7,9 @@ const formatCurrency = (value) => {
     }).format(value || 0);
 };
 
+// Global formatCurrency reference
+window.formatCurrency = formatCurrency;
+
 const updateMetrics = async () => {
     if (!window.db || !window.db.metrics) return;
     
@@ -25,8 +28,161 @@ const updateMetrics = async () => {
     if (patrimonioEl) patrimonioEl.innerText = formatCurrency(metrics.patrimonioTotal);
 };
 
+const getDynamicDueDateString = (vencimentoDia) => {
+    if (!vencimentoDia) return '';
+    const months = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const now = new Date();
+    let month = now.getMonth();
+    let year = now.getFullYear();
+    
+    if (now.getDate() > vencimentoDia) {
+        month = (month + 1) % 12;
+        if (month === 0) year++;
+    }
+    
+    return `${vencimentoDia} ${months[month]}`;
+};
+
+const updateDynamicDueDates = async () => {
+    if (!window.db || !window.db.cartoes) return;
+    try {
+        const cards = await window.db.cartoes.list();
+        if (cards && cards.length > 0) {
+            // Cartão principal é o primeiro
+            const mainCard = cards[0];
+            const vencimentoDia = mainCard.vencimento_dia;
+            const formattedDate = getDynamicDueDateString(vencimentoDia);
+            
+            const els = document.querySelectorAll('.dynamic-vencimento');
+            els.forEach(el => {
+                if (el.id === 'fatura-vencimento' && el.innerText.includes('Vence')) {
+                    el.innerText = `Vence ${formattedDate}`;
+                } else {
+                    el.innerText = formattedDate;
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Erro ao buscar vencimento do cartão:', err);
+    }
+};
+
+// Feature SaaS: Bloqueio de Inadimplentes
+const showSubscriptionBlock = () => {
+    if (document.getElementById('bloqueio-saas')) return;
+    
+    const block = document.createElement('div');
+    block.id = 'bloqueio-saas';
+    block.className = 'fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/80 backdrop-blur-xl px-6 text-center animate-in fade-in duration-500';
+    
+    block.innerHTML = `
+        <div class="max-w-sm glass-card p-8 rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center space-y-6">
+            <div class="w-16 h-16 rounded-full bg-error/20 flex items-center justify-center border border-error/30 animate-pulse">
+                <span class="material-symbols-outlined text-error text-3xl">warning</span>
+            </div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Assinatura Pendente</h2>
+            <p class="text-on-surface-variant/80 text-sm leading-relaxed">
+                Sua assinatura está pendente. Regularize seu pagamento para acessar seus dados.
+            </p>
+            <a href="#" class="w-full bg-primary text-on-primary font-semibold py-3 px-6 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20">
+                Regularizar Agora
+            </a>
+        </div>
+    `;
+    
+    document.body.appendChild(block);
+    
+    // Ocultar menus de navegação inferior se existirem
+    const nav = document.querySelector('nav');
+    if (nav) nav.classList.add('hidden');
+    const header = document.querySelector('header');
+    if (header) {
+        // Oculta botões de navegação do topo para maior segurança, mantendo apenas a logo/branding
+        const navElements = header.querySelectorAll('button, a, [onclick]');
+        navElements.forEach(el => {
+            if (el.id !== 'btn-logout') el.classList.add('hidden');
+        });
+    }
+};
+
+const checkSubscriptionStatus = async () => {
+    if (!window.db || !window.db.supabase) return;
+    try {
+        const user = await window.db.auth.getUser();
+        if (!user) return;
+        
+        const { data, error } = await window.db.supabase
+            .from('perfis')
+            .select('status_assinatura')
+            .eq('id', user.id)
+            .single();
+            
+        if (data && data.status_assinatura === 'inadimplente') {
+            showSubscriptionBlock();
+        }
+    } catch (err) {
+        console.error('Erro ao verificar status de assinatura:', err);
+    }
+};
+
+// UI/UX: Atualiza a foto de perfil ou exibe as iniciais
+const updateProfileUI = async () => {
+    try {
+        const user = await window.db.auth.getUser();
+        if (!user) return;
+        
+        const savedProfilePic = localStorage.getItem('profile_picture');
+        
+        const profileElements = [
+            { id: 'profile-img', parentId: 'profile-img-container' },
+            { id: 'profile-img-top', parentId: 'profile-img-top-container' },
+            { id: 'drawer-profile-img', parentId: 'drawer-profile-container' }
+        ];
+        
+        profileElements.forEach(cfg => {
+            const imgEl = document.getElementById(cfg.id);
+            if (!imgEl) return;
+            
+            if (savedProfilePic) {
+                imgEl.src = savedProfilePic;
+                imgEl.classList.remove('hidden');
+                // Remove qualquer div de iniciais anterior no mesmo container
+                const initialsEl = imgEl.parentElement.querySelector('.user-initials');
+                if (initialsEl) initialsEl.remove();
+            } else {
+                imgEl.classList.add('hidden');
+                const parent = imgEl.parentElement;
+                if (parent) {
+                    let initialsEl = parent.querySelector('.user-initials');
+                    if (!initialsEl) {
+                        initialsEl = document.createElement('div');
+                        initialsEl.className = 'user-initials w-full h-full bg-primary/20 text-primary font-semibold flex items-center justify-center text-sm';
+                        parent.appendChild(initialsEl);
+                    }
+                    const name = user.user_metadata?.full_name || user.email || 'U';
+                    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    initialsEl.innerText = initials;
+                }
+            }
+        });
+    } catch (err) {
+        console.error('Erro ao atualizar UI do perfil:', err);
+    }
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
-    await updateMetrics();
+    // Loop para aguardar a inicialização do DB e realizar validações
+    let attempts = 0;
+    const waitForDb = setInterval(async () => {
+        if (window.db && window.db.auth) {
+            clearInterval(waitForDb);
+            await checkSubscriptionStatus();
+            await updateProfileUI();
+            await updateMetrics();
+            await updateDynamicDueDates();
+        }
+        if (++attempts > 50) clearInterval(waitForDb);
+    }, 100);
 
     const form = document.getElementById('transaction-form');
     if (form) {
@@ -35,6 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let desc = document.getElementById('transacao-desc').value.trim();
             const val = parseFloat(document.getElementById('transacao-valor').value);
             const tipo = document.getElementById('transacao-tipo').value;
+            const categoriaSelect = document.getElementById('transacao-categoria');
             const cardSwitch = document.getElementById('card-switch');
             const fixedSwitch = document.getElementById('fixed-switch');
             const cartaoSelect = document.getElementById('cartao-select');
@@ -50,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const transacao = {
                 descricao: desc,
                 valor: tipo === 'saida' ? -Math.abs(val) : Math.abs(val),
-                categoria: 'Outros',
+                categoria: categoriaSelect ? categoriaSelect.value : 'Outros',
                 parcelas: 1,
                 data: new Date().toISOString()
             };

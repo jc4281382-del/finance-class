@@ -8,13 +8,6 @@
     <link rel="manifest" href="manifest.json" />
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <script>
-        const originalWarn = console.warn;
-        console.warn = (...args) => {
-            if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
-            originalWarn(...args);
-        };
-    </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet" />
@@ -363,18 +356,28 @@
             const pagamentos = cardTransacoes.filter(t => t.valor > 0 && t.descricao && t.descricao.startsWith('Pgto Parcela'));
 
             let itemsMarkup = '';
+            let somaComprasFaturaAberta = 0;
+            let somaPagamentosFatura = 0;
 
             compras.forEach(compra => {
                 const valTotal = Math.abs(Number(compra.valor));
                 const parcelasTotal = parseInt(compra.parcelas) || 1;
                 const valParcela = valTotal / parcelasTotal;
 
-                // Contar quantas parcelas já foram pagas buscando pelo ID da compra na descrição dos pagamentos
-                const parcelasPagas = pagamentos.filter(p => p.descricao && p.descricao.includes(compra.id)).length;
+                // Contar quantas parcelas já foram pagas buscando pelo ID da compra
+                const parcelasPagas = pagamentos.filter(p => p.compra_id_referencia === compra.id || (p.descricao && p.descricao.includes(compra.id))).length;
                 const parcelasRestantes = parcelasTotal - parcelasPagas;
 
                 // Se já pagou tudo, não mostra na lista de ativos
                 if (parcelasRestantes <= 0) return;
+
+                // A compra está na fatura aberta (ativa)
+                somaComprasFaturaAberta += valTotal;
+                // Somar todos os pagamentos realizados para esta compra
+                const pagamentosDessaCompra = pagamentos.filter(p => p.compra_id_referencia === compra.id || (p.descricao && p.descricao.includes(compra.id)));
+                pagamentosDessaCompra.forEach(p => {
+                    somaPagamentosFatura += Math.abs(Number(p.valor));
+                });
 
                 const statusStr = parcelasTotal > 1 ? `Parcela atual ${parcelasPagas + 1}/${parcelasTotal}` : 'Parcela atual 1/1';
                 // Usando a data original da compra ou vencimento fictício
@@ -413,18 +416,13 @@
                 invoiceListEl.innerHTML = itemsMarkup;
             }
 
-            // O Gasto Total do cartão é a soma real de todas as transações (compras - pagamentos)
-            // Compras são negativas e pagamentos são positivos
-            const rawBalance = cardTransacoes.reduce((sum, t) => sum + Number(t.valor), 0);
-            
-            // Valor gasto real é o saldo devedor (quando rawBalance é negativo)
-            let cardUsed = 0;
-            if (rawBalance < 0) {
-                cardUsed = Math.abs(rawBalance);
-            }
-
             const limiteTotal = Number(card.limite);
-            const disponivel = Math.max(0, limiteTotal - cardUsed);
+            // Fórmula estrita: Limite Total - Compras Fatura Aberta + Pagamentos Fatura
+            let disponivel = limiteTotal - somaComprasFaturaAberta + somaPagamentosFatura;
+            if (disponivel > limiteTotal) disponivel = limiteTotal;
+            if (disponivel < 0) disponivel = 0;
+
+            const cardUsed = Math.max(0, limiteTotal - disponivel);
 
             saldoEl.innerText = formatCurrency(disponivel);
             utilizadoEl.innerText = `Valor gasto: ${formatCurrency(cardUsed)}`;
@@ -433,6 +431,20 @@
             if (progressBar) {
                 const pct = limiteTotal > 0 ? Math.min(100, (cardUsed / limiteTotal) * 100) : 0;
                 progressBar.style.width = `${pct}%`;
+            }
+
+            // Exibir vencimento da fatura do cartão ativo
+            const vencEl = document.getElementById('vencimento-text');
+            if (vencEl) {
+                vencEl.classList.remove('hidden');
+                vencEl.className = 'font-label-sm text-sm text-tertiary font-medium';
+                const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                const now = new Date();
+                let month = now.getMonth();
+                if (card.vencimento_dia <= now.getDate()) {
+                    month = (month + 1) % 12;
+                }
+                vencEl.innerText = `Vence dia ${card.vencimento_dia} ${months[month]}`;
             }
 
             // Ação de excluir o cartão
@@ -483,7 +495,8 @@
                     cartao_id: cardId,
                     categoria: 'Fatura Cartão',
                     parcelas: 1,
-                    data: new Date().toISOString()
+                    data: new Date().toISOString(),
+                    compra_id_referencia: transacaoId
                 });
 
                 alert('Parcela paga e limites atualizados com sucesso!');
@@ -511,7 +524,7 @@
                 await window.db.transacoes.remove(transacaoId);
                 
                 // Remove todos os pagamentos atrelados a esta compra (se houver)
-                const pagamentosRelacionados = allTransactions.filter(t => t.descricao && t.descricao.includes(transacaoId));
+                const pagamentosRelacionados = allTransactions.filter(t => t.compra_id_referencia === transacaoId || (t.descricao && t.descricao.includes(transacaoId)));
                 for (const p of pagamentosRelacionados) {
                     await window.db.transacoes.remove(p.id);
                 }

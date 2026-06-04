@@ -168,7 +168,8 @@ window.db = {
                     categoria: transacao.categoria || 'Outros',
                     cartao_id: transacao.cartao_id || null,
                     parcelas: transacao.parcelas || 1,
-                    data: transacao.data || new Date().toISOString()
+                    data: transacao.data || new Date().toISOString(),
+                    compra_id_referencia: transacao.compra_id_referencia || null
                 })
                 .select()
                 .single();
