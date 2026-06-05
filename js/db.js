@@ -237,6 +237,17 @@ window.db = {
                 .eq('workspace_id', workspaceId);
             return data || [];
         },
+        remove: async (id) => {
+            const workspaceId = await window.db.getCurrentWorkspace();
+            if (!workspaceId) throw new Error('Nenhum workspace encontrado');
+            const { error } = await supabaseClient
+                .from('investimentos')
+                .delete()
+                .eq('id', id)
+                .eq('workspace_id', workspaceId);
+            if (error) throw error;
+            return true;
+        },
         add: async (investimento) => {
             const workspaceId = await window.db.getCurrentWorkspace();
             if (!workspaceId) throw new Error('Nenhum workspace encontrado');
