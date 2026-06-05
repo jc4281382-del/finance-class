@@ -255,9 +255,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     cardSwitch.checked = false;
                     document.getElementById('card-details')?.classList.add('hidden');
                 }
-                if (fixedSwitch) {
-                    fixedSwitch.checked = false;
-                }
                 await updateMetrics();
                 
                 // Notificação visual não bloqueante (Toast)
