@@ -418,9 +418,14 @@
 
             const limiteTotal = Number(card.limite);
             
-            // O valor gasto é o balanço total negativo das transações (compras subtraindo os pagamentos)
-            const saldoCru = cardTransacoes.reduce((s, t) => s + Number(t.valor), 0);
-            const valorGasto = Math.abs(Math.min(0, saldoCru));
+            // O valor gasto é o balanço total negativo das transações (compras subtraindo os pagamentos atrelados)
+            let valorGasto = 0;
+            compras.forEach(compra => {
+                const valTotal = Math.abs(Number(compra.valor));
+                const pagamentosDessaCompra = pagamentos.filter(p => p.compra_id_referencia === compra.id || (p.descricao && p.descricao.includes(compra.id)));
+                const pagoRealizado = pagamentosDessaCompra.reduce((s, p) => s + Math.abs(Number(p.valor)), 0);
+                valorGasto += Math.max(0, valTotal - pagoRealizado);
+            });
             
             let disponivel = limiteTotal - valorGasto;
             if (disponivel < 0) disponivel = 0;
@@ -580,8 +585,14 @@
                 cards.forEach((card, i) => {
                     const cardTransacoes = transacoes.filter(t => t.cartao_id === card.id);
                     // A fatura visual no card (Apenas indicativo)
-                    const rawBalance = cardTransacoes.reduce((s, t) => s + Number(t.valor), 0);
-                    const cardInvoice = Math.abs(Math.min(rawBalance, 0));
+                    const cCompras = cardTransacoes.filter(t => t.valor < 0 && (!t.descricao || !t.descricao.startsWith('Pgto Parcela')));
+                    const cPgtos = cardTransacoes.filter(t => t.valor > 0 && t.descricao && t.descricao.startsWith('Pgto Parcela'));
+                    let cardInvoice = 0;
+                    cCompras.forEach(comp => {
+                        const vTotal = Math.abs(Number(comp.valor));
+                        const pagos = cPgtos.filter(p => p.compra_id_referencia === comp.id || (p.descricao && p.descricao.includes(comp.id))).reduce((s, p) => s + Math.abs(Number(p.valor)), 0);
+                        cardInvoice += Math.max(0, vTotal - pagos);
+                    });
 
                     const slide = createCardSlide(card, i === 0, cardInvoice);
                     carousel.appendChild(slide);

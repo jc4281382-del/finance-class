@@ -273,6 +273,16 @@ window.db = {
                 .select('limite')
                 .eq('workspace_id', workspaceId);
             let entradas = 0, saidas = 0, limiteUtilizado = 0;
+            const comprasCartao = (transacoes || []).filter(t => t.cartao_id && t.valor < 0 && !(t.descricao && t.descricao.startsWith('Pgto Parcela')));
+            const pagamentosCartao = (transacoes || []).filter(t => t.cartao_id && t.valor > 0 && t.descricao && t.descricao.startsWith('Pgto Parcela'));
+
+            comprasCartao.forEach(compra => {
+                const valTotal = Math.abs(Number(compra.valor));
+                const pagamentosDessaCompra = pagamentosCartao.filter(p => p.compra_id_referencia === compra.id || (p.descricao && p.descricao.includes(compra.id)));
+                const pagoRealizado = pagamentosDessaCompra.reduce((s, p) => s + Math.abs(Number(p.valor)), 0);
+                limiteUtilizado += Math.max(0, valTotal - pagoRealizado);
+            });
+
             (transacoes || []).forEach(t => {
                 const isPgtoFaturaPositive = t.valor > 0 && t.descricao && t.descricao.startsWith('Pgto Parcela') && t.cartao_id;
                 
@@ -283,12 +293,6 @@ window.db = {
                     entradas += Number(t.valor);
                 } else {
                     if (!t.cartao_id) { saidas += Math.abs(Number(t.valor)); } // Aqui entra a transação negativa "Pagamento Fatura" e as despesas normais
-                }
-                
-                // Para o limite utilizado, consideramos as despesas no cartão
-                if (t.cartao_id && t.valor < 0 && !(t.descricao && t.descricao.startsWith('Pagamento Fatura'))) {
-                    const numParcelas = parseInt(t.parcelas) || 1;
-                    limiteUtilizado += (Math.abs(Number(t.valor)) / numParcelas);
                 }
             });
             const patrimonioTotal = (investimentos || []).reduce((sum, i) => sum + Number(i.valor_investido || 0), 0);
