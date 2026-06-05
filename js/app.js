@@ -22,7 +22,7 @@ const updateMetrics = async () => {
     const patrimonioEl = document.getElementById('patrimonio-total');
     
     if (saldoEl) saldoEl.innerText = formatCurrency(metrics.saldo);
-    if (faturaEl) faturaEl.innerText = formatCurrency(metrics.limiteUtilizado);
+    if (entradasEl) entradasEl.innerText = formatCurrency(metrics.entradas);
     if (entradasEl) entradasEl.innerText = formatCurrency(metrics.entradas);
     if (saidasEl) saidasEl.innerText = formatCurrency(metrics.saidas);
     if (patrimonioEl) patrimonioEl.innerText = formatCurrency(metrics.patrimonioTotal);
@@ -43,6 +43,23 @@ const updateMetrics = async () => {
             metaStatusIcon.innerText = "✅";
             metaStatusText.className = "font-label-sm text-label-sm text-tertiary-fixed";
             metaStatusText.innerText = "Você está gastando dentro da meta";
+        }
+    }
+
+    // Atualização dinâmica do indicador visual no saldo da tela de Início
+    const saldoRendimentoIcon = document.getElementById('saldo-rendimento-icon');
+    const saldoRendimentoText = document.getElementById('saldo-rendimento-text');
+    if (saldoRendimentoIcon && saldoRendimentoText) {
+        if (metrics.saldo < 0) {
+            saldoRendimentoIcon.innerText = "trending_down";
+            saldoRendimentoIcon.className = "material-symbols-outlined text-[16px] text-error";
+            saldoRendimentoText.innerText = "Déficit neste mês";
+            saldoRendimentoText.className = "font-label-sm text-error";
+        } else {
+            saldoRendimentoIcon.innerText = "trending_up";
+            saldoRendimentoIcon.className = "material-symbols-outlined text-[16px] text-tertiary";
+            saldoRendimentoText.innerText = "Superávit este mês";
+            saldoRendimentoText.className = "font-label-sm text-tertiary";
         }
     }
 };
@@ -212,17 +229,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tipo = document.getElementById('transacao-tipo').value;
             const categoriaSelect = document.getElementById('transacao-categoria');
             const cardSwitch = document.getElementById('card-switch');
-            const fixedSwitch = document.getElementById('fixed-switch');
             const cartaoSelect = document.getElementById('cartao-select');
             const parcelasInput = document.getElementById('parcelas-input');
             
             if (!desc || isNaN(val)) return;
             
-            // Adiciona o indicador visual "📌 Fixa" na descrição
-            if (fixedSwitch && fixedSwitch.checked) {
-                desc += ' 📌 Fixa';
-            }
-            
+
             const transacao = {
                 descricao: desc,
                 valor: tipo === 'saida' ? -Math.abs(val) : Math.abs(val),

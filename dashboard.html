@@ -254,25 +254,6 @@
                 </div>
             </section>
         </div>
-        <!-- Card 4: Fatura -->
-        <section class="glass-card rounded-2xl p-6 flex flex-col gap-4 border-l-4 border-primary">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="font-label-md text-on-surface-variant uppercase text-xs">Fatura Atual • <span id="fatura-vencimento">Vence 15 Out</span></p>
-                    <h3 id="fatura-atual" class="font-headline-md text-headline-md mt-1">R$ 0,00</h3>
-                </div>
-                <span class="material-symbols-outlined text-primary-fixed-dim">credit_card</span>
-            </div>
-            <div class="flex flex-col gap-2 mt-2">
-                <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div id="fatura-progress-bar" class="h-full vibrant-gradient" style="width: 0%"></div>
-                </div>
-                <div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
-                    <span id="limite-utilizado-text">Limite utilizado: R$ 0,00</span>
-                    <span id="limite-total-text">Total: R$ 0,00</span>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Bottom Navigation Bar -->
@@ -448,7 +429,7 @@
                 if (gastosContainer) {
                     gastosContainer.innerHTML = '';
                     if (totalGastos > 0) {
-                        var catIcons = { 'Moradia': 'home_work', 'Alimentação': 'restaurant', 'Lazer': 'sports_esports', 'Transporte': 'directions_car', 'Saúde': 'local_hospital', 'Educação': 'school', 'Serviços': 'build' };
+                        var catIcons = { 'Moradia': 'home_work', 'Alimentação': 'restaurant', 'Lazer': 'sports_esports', 'Transporte': 'directions_car', 'Saúde': 'local_hospital', 'Educação': 'school', 'Serviços': 'build', 'Emprego': 'work', 'Renda Extra': 'payments', 'Investimentos': 'trending_up', 'Outros': 'category' };
                         var entries = Object.entries(gastosPorCategoria).sort(function(a, b) { return b[1] - a[1]; });
                         entries.forEach(function(entry) {
                             var cat = entry[0], valor = entry[1];
@@ -502,30 +483,7 @@
                     }
                 }
 
-                // 6. Fatura
-                var faturaEl = document.getElementById('fatura-atual');
-                if (faturaEl) faturaEl.textContent = fc(metrics.limiteUtilizado);
-                var faturaProgress = document.getElementById('fatura-progress-bar');
-                var limUtil = metrics.limiteUtilizado || 0;
-                var limTotal = metrics.limiteTotal || 1;
-                var pctLimite = Math.min((limUtil / limTotal) * 100, 100);
-                if (faturaProgress) faturaProgress.style.width = pctLimite + '%';
-                var limiteUtilizadoEl = document.getElementById('limite-utilizado-text');
-                var limiteTotalEl = document.getElementById('limite-total-text');
-                if (limiteUtilizadoEl) limiteUtilizadoEl.textContent = 'Limite utilizado: ' + fc(limUtil);
-                if (limiteTotalEl) limiteTotalEl.textContent = 'Total: ' + fc(limTotal);
-                
-                var vencEl = document.getElementById('fatura-vencimento');
-                if (vencEl && cartoes && cartoes.length > 0) {
-                    var primeiro = cartoes[0];
-                    var months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-                    var now = new Date();
-                    var month = now.getMonth();
-                    if (primeiro.vencimento_dia <= now.getDate()) {
-                        month = (month + 1) % 12;
-                    }
-                    vencEl.textContent = 'Vence ' + primeiro.vencimento_dia + ' ' + months[month];
-                }
+
             } catch (err) {
                 console.error('Erro ao carregar dados do dashboard:', err);
             }

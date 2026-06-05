@@ -216,23 +216,9 @@
                     <span class="material-symbols-outlined text-white/90 cursor-pointer" id="btn-logout" title="Sair" onclick="window.db.auth.signOut()">logout</span>
                 </div>
                 <h2 id="saldo-disponivel" class="font-display-lg text-display-lg text-white mb-1">R$ 0,00</h2>
-                <div class="flex items-center gap-2 text-white/70">
-                    <span class="material-symbols-outlined text-[16px]">trending_up</span>
-                    <span class="font-label-sm">+ 2,4% este mês</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Current Invoice -->
-        <section class="mb-gutter">
-            <div class="glass-card rounded-xl p-5 flex justify-between items-center active:scale-[0.98] transition-all" onclick="window.location.href='credito.html'">
-                <div>
-                    <span class="font-label-sm text-on-surface-variant block mb-1">Fatura Atual</span>
-                    <h3 id="fatura-atual" class="font-headline-md text-white">R$ 0,00</h3>
-                </div>
-                <div class="text-right">
-                    <span class="font-label-sm text-on-surface-variant block mb-1">Vence em</span>
-                    <span id="fatura-vencimento" class="font-label-md text-tertiary dynamic-vencimento">15 OUT</span>
+                <div id="saldo-rendimento-container" class="flex items-center gap-2 text-white/70">
+                    <span id="saldo-rendimento-icon" class="material-symbols-outlined text-[16px]">trending_up</span>
+                    <span id="saldo-rendimento-text" class="font-label-sm">+ 2,4% este mês</span>
                 </div>
             </div>
         </section>
@@ -273,17 +259,13 @@
                             <option class="bg-surface" value="Saúde">Saúde</option>
                             <option class="bg-surface" value="Educação">Educação</option>
                             <option class="bg-surface" value="Lazer">Lazer</option>
+                            <option class="bg-surface" value="Emprego">Emprego</option>
+                            <option class="bg-surface" value="Renda Extra">Renda Extra</option>
+                            <option class="bg-surface" value="Investimentos">Investimentos</option>
                             <option class="bg-surface" value="Outros" selected>Outros</option>
                         </select>
                     </div>
-                    <!-- Switch Transação Fixa -->
-                    <div class="flex items-center justify-between py-2">
-                        <span class="font-label-md text-on-surface">Transação Fixa</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input class="sr-only peer" id="fixed-switch" type="checkbox" />
-                            <div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                    </div>
+
                     <!-- Switch Gastei no Cartão -->
                     <div class="flex items-center justify-between py-2">
                         <span class="font-label-md text-on-surface">Gastei no Cartão</span>
@@ -360,62 +342,55 @@
             }
         }
 
-        // Export Planilha Excel/CSV
-        async function downloadReport() {
-            try {
-                const [transacoes, investimentos, cartoes] = await Promise.all([
-                    window.db.transacoes.list(),
-                    window.db.investimentos.list(),
-                    window.db.cartoes.list()
-                ]);
-                
-                let csvContent = "\ufeff"; // BOM UTF-8
-                csvContent += "RELATÓRIO FINANCEIRO MENSAL - FINANCE CLASS\n\n";
-                
-                // Resumo Geral
-                const entradas = transacoes.filter(t => t.valor > 0).reduce((s, t) => s + Number(t.valor), 0);
-                const saidas = transacoes.filter(t => t.valor < 0).reduce((s, t) => s + Math.abs(Number(t.valor)), 0);
-                const saldo = entradas - saidas;
-                const totalInvestido = investimentos.reduce((s, i) => s + Number(i.valor_investido), 0);
-                
-                csvContent += "RESUMO GERAL\n";
-                csvContent += `Total de Entradas;R$ ${entradas.toFixed(2).replace('.', ',')}\n`;
-                csvContent += `Total de Saídas;R$ ${saidas.toFixed(2).replace('.', ',')}\n`;
-                csvContent += `Saldo Disponível;R$ ${saldo.toFixed(2).replace('.', ',')}\n`;
-                csvContent += `Patrimônio Investido;R$ ${totalInvestido.toFixed(2).replace('.', ',')}\n\n`;
-                
-                // Extrato de Transações
-                csvContent += "EXTRATO DE TRANSAÇÕES\n";
-                csvContent += "Data;Descrição;Categoria;Valor;Parcelas;Cartão\n";
-                transacoes.forEach(t => {
-                    const dataStr = new Date(t.data).toLocaleDateString('pt-BR');
-                    const valorStr = Number(t.valor).toFixed(2).replace('.', ',');
-                    const cartaoNome = t.cartao_id ? (cartoes.find(c => c.id === t.cartao_id)?.nome || "Cartão") : "À Vista";
-                    csvContent += `${dataStr};${t.descricao};${t.categoria};R$ ${valorStr};${t.parcelas};${cartaoNome}\n`;
-                });
-                csvContent += "\n";
-                
-                // Investimentos
-                csvContent += "CARTEIRA DE INVESTIMENTOS\n";
-                csvContent += "Nome do Investimento;Valor Investido;Rentabilidade;Data de Aplicação\n";
-                investimentos.forEach(i => {
-                    const valStr = Number(i.valor_investido).toFixed(2).replace('.', ',');
-                    const dateStr = new Date(i.criado_em).toLocaleDateString('pt-BR');
-                    csvContent += `${i.nome};R$ ${valStr};${i.rentabilidade}%;${dateStr}\n`;
-                });
-                
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", `Relatorio_Finance_Class_${new Date().getMonth() + 1}_${new Date().getFullYear()}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (err) {
-                alert("Erro ao gerar relatório: " + err.message);
+        // Export Planilha Excel/CSV (Mock de acordo com os requisitos)
+        function downloadReport() {
+            // Cria e injeta o modal de relatório, caso não exista
+            if (!document.getElementById('report-modal')) {
+                const modalHtml = `
+                    <div id="report-modal" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in">
+                        <div class="bg-surface-container-low border border-white/10 rounded-2xl p-6 w-11/12 max-w-sm shadow-2xl flex flex-col gap-4">
+                            <h3 class="font-headline-md text-white text-lg">Baixar Relatório</h3>
+                            <p class="font-body-md text-on-surface-variant text-sm">Selecione o mês para exportar seus dados financeiros.</p>
+                            
+                            <div class="flex flex-col gap-2">
+                                <label class="font-label-md text-white">Mês do Relatório</label>
+                                <select id="report-month-select" class="w-full bg-white/5 border border-white/10 focus:ring-2 focus:ring-primary/50 rounded-lg text-white font-body-md p-3 outline-none">
+                                    <option class="bg-surface" value="1">Janeiro</option>
+                                    <option class="bg-surface" value="2">Fevereiro</option>
+                                    <option class="bg-surface" value="3">Março</option>
+                                    <option class="bg-surface" value="4">Abril</option>
+                                    <option class="bg-surface" value="5">Maio</option>
+                                    <option class="bg-surface" value="6">Junho</option>
+                                    <option class="bg-surface" value="7">Julho</option>
+                                    <option class="bg-surface" value="8">Agosto</option>
+                                    <option class="bg-surface" value="9">Setembro</option>
+                                    <option class="bg-surface" value="10">Outubro</option>
+                                    <option class="bg-surface" value="11">Novembro</option>
+                                    <option class="bg-surface" value="12">Dezembro</option>
+                                </select>
+                            </div>
+                            
+                            <div id="report-error" class="hidden bg-error-container/20 border border-error/30 p-3 rounded-lg flex items-center gap-2 mt-2">
+                                <span class="material-symbols-outlined text-error text-sm">warning</span>
+                                <span class="text-error font-label-sm text-sm">Esse período o App não estava em uso</span>
+                            </div>
+
+                            <div class="flex gap-3 justify-end mt-4">
+                                <button onclick="document.getElementById('report-modal').remove()" class="px-4 py-2 rounded-lg text-white hover:bg-white/5 font-label-md transition-all">Cancelar</button>
+                                <button onclick="processReportDownload()" class="px-5 py-2 rounded-lg bg-primary text-on-primary font-label-md hover:bg-primary/90 transition-all">Baixar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
             }
+        }
+
+        function processReportDownload() {
+            // Mock simulando a verificação de disponibilidade do mês
+            // Independente do mês escolhido para fins de mock, mostramos o erro do requisito.
+            const errorDiv = document.getElementById('report-error');
+            errorDiv.classList.remove('hidden');
         }
 
         async function loadCards() {
