@@ -202,6 +202,13 @@
                 <canvas id="saude-financeira-chart"></canvas>
             </div>
         </section>
+        <!-- Gráfico de Fluxo por Categoria -->
+        <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
+            <h4 class="font-headline-md text-body-lg">Fluxo por Categoria</h4>
+            <div class="w-full h-64 relative">
+                <canvas id="categoria-fluxo-chart"></canvas>
+            </div>
+        </section>
         <!-- Card Investimentos -->
         <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
             <div class="flex justify-between items-center">
@@ -387,6 +394,94 @@
                                 x: {
                                     grid: { display: false },
                                     ticks: { color: '#c4c5d9' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Gráfico Chart.js - Fluxo por Categoria
+                var categorias = [
+                    'Alimentação',
+                    'Moradia',
+                    'Transporte',
+                    'Saúde',
+                    'Educação',
+                    'Lazer',
+                    'Emprego',
+                    'Renda Extra',
+                    'Investimentos',
+                    'Outros'
+                ];
+                var fluxoEntradas = {};
+                var fluxoSaidas = {};
+                categorias.forEach(function(c) {
+                    fluxoEntradas[c] = 0;
+                    fluxoSaidas[c] = 0;
+                });
+
+                (transacoes || []).forEach(function(t) {
+                    const isPgtoFaturaPositive = t.valor > 0 && t.descricao && t.descricao.startsWith('Pgto Parcela') && t.cartao_id;
+                    if (isPgtoFaturaPositive) return;
+                    
+                    var cat = t.categoria || 'Outros';
+                    if (!categorias.includes(cat)) {
+                        cat = 'Outros';
+                    }
+                    var val = Number(t.valor || 0);
+                    if (val > 0) {
+                        fluxoEntradas[cat] += val;
+                    } else {
+                        fluxoSaidas[cat] += Math.abs(val);
+                    }
+                });
+
+                var dataEntradas = categorias.map(function(c) { return fluxoEntradas[c]; });
+                var dataSaidas = categorias.map(function(c) { return fluxoSaidas[c]; });
+
+                var ctx2 = document.getElementById('categoria-fluxo-chart');
+                if (ctx2) {
+                    new Chart(ctx2, {
+                        type: 'bar',
+                        data: {
+                            labels: categorias,
+                            datasets: [
+                                {
+                                    label: 'Entradas',
+                                    data: dataEntradas,
+                                    backgroundColor: '#00dce5', // tertiary (Entradas)
+                                    borderRadius: 4
+                                },
+                                {
+                                    label: 'Saídas',
+                                    data: dataSaidas,
+                                    backgroundColor: '#ffb4ab', // error (Saídas)
+                                    borderRadius: 4
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { 
+                                    display: true,
+                                    labels: { color: '#c4c5d9' }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: 'rgba(255,255,255,0.05)' },
+                                    ticks: { color: '#c4c5d9' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { 
+                                        color: '#c4c5d9',
+                                        maxRotation: 45,
+                                        minRotation: 45
+                                    }
                                 }
                             }
                         }
