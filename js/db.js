@@ -262,7 +262,7 @@ window.db = {
             }
             const { data: transacoes } = await supabaseClient
                 .from('transacoes')
-                .select('valor, cartao_id')
+                .select('valor, cartao_id, descricao, parcelas')
                 .eq('workspace_id', workspaceId);
             const { data: investimentos } = await supabaseClient
                 .from('investimentos')
@@ -274,20 +274,19 @@ window.db = {
                 .eq('workspace_id', workspaceId);
             let entradas = 0, saidas = 0, limiteUtilizado = 0;
             (transacoes || []).forEach(t => {
-                const isPgtoFatura = t.descricao && t.descricao.startsWith('Pgto Parcela');
+                const isPgtoFaturaPositive = t.valor > 0 && t.descricao && t.descricao.startsWith('Pgto Parcela') && t.cartao_id;
                 
-                if (t.valor > 0) {
-                    if (isPgtoFatura) {
-                        saidas += Number(t.valor); // Pagamento de fatura reduz o saldo da conta
-                    } else {
-                        entradas += Number(t.valor);
-                    }
+                if (isPgtoFaturaPositive) {
+                    // Ignora esta transação para cálculo de saldo/entradas/saídas da conta, 
+                    // pois ela serve apenas para restaurar o limite do cartão.
+                } else if (t.valor > 0) {
+                    entradas += Number(t.valor);
                 } else {
-                    saidas += Math.abs(Number(t.valor));
+                    saidas += Math.abs(Number(t.valor)); // Aqui entra a transação negativa "Pagamento Fatura" e as despesas normais
                 }
                 
-                // Para a fatura atual, considera o valor da parcela das despesas no cartão
-                if (t.cartao_id && t.valor < 0 && !isPgtoFatura) {
+                // Para o limite utilizado, consideramos as despesas no cartão
+                if (t.cartao_id && t.valor < 0 && !(t.descricao && t.descricao.startsWith('Pagamento Fatura'))) {
                     const numParcelas = parseInt(t.parcelas) || 1;
                     limiteUtilizado += (Math.abs(Number(t.valor)) / numParcelas);
                 }

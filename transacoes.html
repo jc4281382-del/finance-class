@@ -364,7 +364,7 @@
                     window.db.transacoes.list(),
                     window.db.cartoes.list()
                 ]);
-                allTransactions = tx;
+                allTransactions = tx.filter(t => !(t.valor > 0 && t.descricao && t.descricao.startsWith('Pgto Parcela') && t.cartao_id));
                 allCards = cards;
                 render();
             } catch (err) {

@@ -315,7 +315,7 @@
                 var metrics = results[0], transacoes = results[1], investimentos = results[2], cartoes = results[3];
 
                 var expenses = (transacoes || []).filter(function(t) { return (t.valor || 0) < 0; });
-                var incomes = (transacoes || []).filter(function(t) { return (t.valor || 0) > 0; });
+                var incomes = (transacoes || []).filter(function(t) { return (t.valor || 0) > 0 && !(t.descricao && t.descricao.startsWith('Pgto Parcela') && t.cartao_id); });
                 
                 var gastosPorCategoria = {};
                 expenses.forEach(function(t) {
