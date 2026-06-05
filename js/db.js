@@ -282,7 +282,7 @@ window.db = {
                 } else if (t.valor > 0) {
                     entradas += Number(t.valor);
                 } else {
-                    saidas += Math.abs(Number(t.valor)); // Aqui entra a transação negativa "Pagamento Fatura" e as despesas normais
+                    if (!t.cartao_id) { saidas += Math.abs(Number(t.valor)); } // Aqui entra a transação negativa "Pagamento Fatura" e as despesas normais
                 }
                 
                 // Para o limite utilizado, consideramos as despesas no cartão
